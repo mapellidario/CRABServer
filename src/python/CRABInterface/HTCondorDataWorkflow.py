@@ -317,7 +317,7 @@ class HTCondorDataWorkflow(DataWorkflow):
                 else:
                     self.logger.info("Node state file is too old or does not have an update time. Stale info is shown")
             except Exception as ee:
-                addStatusAndFailure(result, status = 'UNKNOWN', failure = ee.info)
+                addStatusAndFailure(result, status = 'UNKNOWN', failure = str(ee))
                 return [result]
 
         if 'DagStatus' in taskStatus:
