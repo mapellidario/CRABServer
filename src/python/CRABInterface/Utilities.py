@@ -152,7 +152,7 @@ def getCentralConfig(extconfigurl, mode):
     # if htcondorSchedds": [] is not empty, it gets populated with the specified list of schedds,
     # otherwise it takes default list of schedds
     if extConfCommon['backend-urls']['htcondorSchedds']:
-        extConfCommon['backend-urls']['htcondorSchedds'] = {k: v for k, v in extConfSchedds.items() if
+        extConfCommon['backend-urls']['htcondorSchedds'] = {k: v for k, v in list(extConfSchedds.items()) if
                                                             k in extConfCommon['backend-urls']['htcondorSchedds']}
     else:
         extConfCommon["backend-urls"]["htcondorSchedds"] = extConfSchedds

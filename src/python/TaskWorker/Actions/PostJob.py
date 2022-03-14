@@ -533,7 +533,7 @@ class ASOServerJob(object):
         with open('taskinformation.pkl', 'rb') as fd:
             task = pickle.load(fd)
         if self.transfer_outputs:
-            for output_module in self.job_report_output.values():
+            for output_module in list(self.job_report_output.values()):
                 for output_file_info in output_module:
                     file_info = {}
                     file_info['pfn'] = str(output_file_info[u'pfn'])
@@ -1099,7 +1099,7 @@ class ASOServerJob(object):
                 time.sleep(3*60)
                 msg = "This is cancellation retry number %d." % (retry)
                 self.logger.info(msg)
-            for doc_id, reason in doc_ids_reasons.items():
+            for doc_id, reason in list(doc_ids_reasons.items()):
                 if doc_id in cancelled:
                     continue
                 msg = "Cancelling ASO transfer %s" % (doc_id)
@@ -2081,7 +2081,7 @@ class PostJob():
         if self.job_ad:
             self.logger.debug("------ Job classad values for debug purposes:")
             msg = "-"*100
-            for key in sorted(self.job_ad.keys(), key=lambda v: (v.upper(), v[0].islower())):
+            for key in sorted(list(self.job_ad.keys()), key=lambda v: (v.upper(), v[0].islower())):
                 msg += "\n%35s    %s" % (key, self.job_ad[key])
             self.logger.debug(msg)
             self.logger.debug("-"*100)
@@ -2155,7 +2155,7 @@ class PostJob():
         ASO_JOB = None
         num_failures = len(failures)
         num_permanent_failures = 0
-        for doc_id in failures.keys():
+        for doc_id in list(failures.keys()):
             if isinstance(failures[doc_id]['reasons'], str):
                 failures[doc_id]['reasons'] = [failures[doc_id]['reasons']]
             if isinstance(failures[doc_id]['reasons'], list):
@@ -2174,7 +2174,7 @@ class PostJob():
         if num_permanent_failures:
             msg += " %d of those jobs had a permanent failure." % (num_permanent_failures)
         msg += "\nFailure reasons (per document) follow:"
-        for doc_id in failures.keys():
+        for doc_id in list(failures.keys()):
             msg += "\n- %s:" % (doc_id)
             if failures[doc_id]['app']:
                 msg += "\n  -----> %s log start -----" % (str(failures[doc_id]['app']).upper())
@@ -2289,11 +2289,11 @@ class PostJob():
             #TODO: there could be a better py3 way to get lists of outfileruns/lumis
             outfileruns = []
             outfilelumis = []
-            for run, lumis in ifile[u'runs'].items():
+            for run, lumis in list(ifile[u'runs'].items()):
                 outfileruns.append(str(run))
                 outfilelumis.append(','.join(map(str, lumis)))
 
-            configreq = [item for item in configreq.items()]  # make a real list of (k,v) pairs as rest_api requires
+            configreq = [item for item in list(configreq.items())]  # make a real list of (k,v) pairs as rest_api requires
             #configreq['outfileruns'] = [run for run in outfileruns]
             #configreq['outfilelumis'] = [lumis for lumis in outfilelumis]
             for run in outfileruns:
@@ -2364,7 +2364,7 @@ class PostJob():
                          'directstageout'  : int(file_info['direct_stageout']),
                          'globalTag'       : 'None'
                         }
-            configreq = [item for item in configreq.items()]  # make a real list of (k,v) pairs as rest_api requires
+            configreq = [item for item in list(configreq.items())]  # make a real list of (k,v) pairs as rest_api requires
             #configreq = configreq.items()
             if 'outfileruns' in file_info:
                 for run in file_info['outfileruns']:
@@ -2563,7 +2563,7 @@ class PostJob():
         Fill self.output_files_info by parsing the job report.
         """
         def get_output_file_info(filename):
-            for output_module in self.job_report_output.values():
+            for output_module in list(self.job_report_output.values()):
                 for output_file_info in output_module:
                     ifile = get_file_index(filename, [output_file_info])
                     if ifile is not None:
@@ -2620,13 +2620,13 @@ class PostJob():
                     continue
                 file_info['outfileruns'] = []
                 file_info['outfilelumis'] = []
-                for run, lumis in output_file_info[u'runs'].items():
+                for run, lumis in list(output_file_info[u'runs'].items()):
                     file_info['outfileruns'].append(str(run))
                     # Creating a string like '100:20,101:21,105:20...'
                     # where the lumi is followed by a colon and number of events in that lumi.
                     # Note that the events per lumi information is provided by WMCore version >=1.1.2 when parsing FWJR.
                     lumisAndEvents = ','.join(['{0}:{1}'.format(str(lumi), str(numEvents))
-                                               for lumi, numEvents in lumis.items()])
+                                               for lumi, numEvents in list(lumis.items())])
                     file_info['outfilelumis'].append(lumisAndEvents)
             else:
                 msg = "Output file info for %s not found in job report." % (orig_file_name)

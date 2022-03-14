@@ -62,7 +62,7 @@ def submit(trans_tuple, job_data, log, direct=False):
         # workaround for phedex.getPFN issue --> shuffling output order w.r.t. the list in input
         try:
             for chunk in chunks(src_lfns, 10):
-                unsorted_source_pfns = [[k.split(scope+":")[1], str(x)] for k, x in crabInj.cli.lfns2pfns(source, [scope + ":" + y for y in chunk]).items()]
+                unsorted_source_pfns = [[k.split(scope+":")[1], str(x)] for k, x in list(crabInj.cli.lfns2pfns(source, [scope + ":" + y for y in chunk]).items())]
                 #log.info(unsorted_source_pfns)
                 for order_lfn in chunk:
                     for lfn, pfn in unsorted_source_pfns:
@@ -71,7 +71,7 @@ def submit(trans_tuple, job_data, log, direct=False):
                             break
 
             for chunk in chunks(dst_lfns, 10):
-                unsorted_dest_pfns = [[k.split(scope+":")[1], str(x)] for k, x in  crabInj.cli.lfns2pfns(toTrans[0][4],  [scope + ":" + y for y in chunk]).items()]
+                unsorted_dest_pfns = [[k.split(scope+":")[1], str(x)] for k, x in  list(crabInj.cli.lfns2pfns(toTrans[0][4],  [scope + ":" + y for y in chunk]).items())]
                 #log.info(unsorted_dest_pfns)
                 for order_lfn in chunk:
                     for lfn, pfn in unsorted_dest_pfns:

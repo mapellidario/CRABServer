@@ -187,7 +187,7 @@ class CRAB3ProxyRenewer(object):
             ad_list = ads.setdefault(key, [])
             ad_list.append(ad)
 
-        for key, ad_list in ads.items():
+        for key, ad_list in list(ads.items()):
             self.logger.info("Retrieving proxy for %s", str(key))
             try:
                 proxyfile = self.get_proxy_from_MyProxy(ad_list[0])

@@ -36,7 +36,7 @@ def format_file_3(file_):
           'file_parent_list': [{'file_parent_lfn': i} for i in set(file_['parents'])],
          }
     file_lumi_list = []
-    for run, lumis in file_['runlumi'].items():
+    for run, lumis in list(file_['runlumi'].items()):
         for lumi in lumis:
             file_lumi_list.append({'lumi_section_num': int(lumi), 'run_num': int(run)})
     nf['file_lumi_list'] = file_lumi_list

@@ -98,7 +98,7 @@ class PreDAG(object):
         stagere['processing'] = re.compile(r"^0-\d+$")
         stagere['tail'] = re.compile(r"^[1-9]\d*$")
         completedCount = 0
-        for jobnr, jobdict in self.statusCacheInfo.items():
+        for jobnr, jobdict in list(self.statusCacheInfo.items()):
             state = jobdict.get('State')
             if stagere[stage].match(jobnr) and state in ('finished', 'failed'):
                 if state == 'failed' and processFailed:

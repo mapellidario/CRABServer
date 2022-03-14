@@ -330,7 +330,7 @@ class HTCondorDataWorkflow(DataWorkflow):
                 else:
                     taskStatus[i] = {'State': 'unsubmitted'}
 
-        for job, info in taskStatus.items():
+        for job, info in list(taskStatus.items()):
             status = info['State']
             jobsPerStatus.setdefault(status, 0)
             jobsPerStatus[status] += 1
@@ -530,7 +530,7 @@ class HTCondorDataWorkflow(DataWorkflow):
         """
         transfers = {}
         data = json.load(fp)
-        for docid, result in data['results'].items():
+        for docid, result in list(data['results'].items()):
             result = result[0]
             jobid = str(result['jobid'])
             if jobid not in nodes:
@@ -558,7 +558,7 @@ class HTCondorDataWorkflow(DataWorkflow):
         fp.seek(0)
         data = json.load(fp)
         #iterate over the jobs and set the error dict for those which are failed
-        for jobid, statedict in nodes.items():
+        for jobid, statedict in list(nodes.items()):
             if 'State' in statedict and statedict['State'] == 'failed' and jobid in data:
                 statedict['Error'] = last(data[jobid]) #data[jobid] contains all retries. take the last one
 

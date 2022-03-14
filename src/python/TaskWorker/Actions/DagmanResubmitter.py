@@ -86,7 +86,7 @@ class DagmanResubmitter(TaskAction):
                   'JobPrio'            : 'priority'
                  }
         overwrite = False
-        for taskparam in params.values():
+        for taskparam in list(params.values()):
             if ('resubmit_'+taskparam in task) and task['resubmit_'+taskparam] != None:
                 # py3: we can revert changes coming from #5317
                 if isinstance(task['resubmit_'+taskparam], list):
@@ -103,7 +103,7 @@ class DagmanResubmitter(TaskAction):
                     ## all the jobs, not only the ones we want to resubmit. That's why the pre-job
                     ## is saving the values of the parameters for each job retry in text files (the
                     ## files are in the directory resubmit_info in the schedd).
-                    for adparam, taskparam in params.items():
+                    for adparam, taskparam in list(params.items()):
                         if taskparam in ad:
                             schedd.edit(rootConst, adparam, ad.lookup(taskparam))
                         elif task['resubmit_'+taskparam] != None:
@@ -116,7 +116,7 @@ class DagmanResubmitter(TaskAction):
             with HTCondorUtils.AuthenticatedSubprocess(proxy, tokenDir,
                                                        logger=self.logger) as (parent, rpipe):
                 if not parent:
-                    for adparam, taskparam in params.items():
+                    for adparam, taskparam in list(params.items()):
                         if taskparam in ad:
                             if taskparam == 'jobids' and len(list(ad[taskparam])) == 0:
                                 self.logger.debug("Setting %s = True in the task ad.", adparam)

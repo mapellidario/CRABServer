@@ -236,7 +236,7 @@ class Worker(object):
                                      contains the type of work to be
                                      done, the task object and the args."""
         self.logger.debug("Ready to inject %d items", len(items))
-        workid = 0 if len(self.working.keys()) == 0 else max(self.working.keys()) + 1
+        workid = 0 if len(list(self.working.keys())) == 0 else max(self.working.keys()) + 1
         for work in items:
             worktype, task, failstatus, arguments = work
             self.inputs.put((workid, worktype, task, failstatus, arguments))
@@ -249,11 +249,11 @@ class Worker(object):
         """Verifies if there are any finished jobs in the output queue
 
            :return Result: the output of the work completed."""
-        if len(self.working.keys()) == 0:
+        if len(list(self.working.keys())) == 0:
             return []
         allout = []
-        self.logger.info("%d work on going, checking if some has finished", len(self.working.keys()))
-        for _ in range(len(self.working.keys())):
+        self.logger.info("%d work on going, checking if some has finished", len(list(self.working.keys())))
+        for _ in range(len(list(self.working.keys()))):
             out = None
             try:
                 out = self.results.get_nowait()

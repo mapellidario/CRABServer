@@ -35,7 +35,7 @@ class OutputObj:
         self.outputMessage = outputMessage
         self.outputObj = outputObj
         self.environmentStr = ""
-        for key, val in os.environ.items():
+        for key, val in list(os.environ.items()):
             self.environmentStr += "%s=%s\n" % (key, val)
 
 

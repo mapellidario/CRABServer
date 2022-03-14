@@ -225,7 +225,7 @@ class DagmanSubmitter(TaskAction.TaskAction):
         self.logger.debug("Picking up the scheduler using %s", self.config.TaskWorker.scheddPickerFunction)
         #copy the list of schedd from REST external configuration. They are loaded when action is created
         restSchedulers = self.backendurls['htcondorSchedds']
-        alreadyTriedSchedds = scheddStats.taskErrors.keys() #keys in the taskerrors are schedd
+        alreadyTriedSchedds = list(scheddStats.taskErrors.keys()) #keys in the taskerrors are schedd
 
         currentBackendurls = copy.deepcopy(self.backendurls)
         currentBackendurls['htcondorSchedds'] = dict([(s, restSchedulers[s]) for s in restSchedulers if s not in alreadyTriedSchedds])
@@ -294,7 +294,7 @@ class DagmanSubmitter(TaskAction.TaskAction):
         msg = "The CRAB server backend was not able to submit the jobs to the Grid schedulers."
         msg += " This could be a temporary glitch. Please try again later."
         msg += " If the error persists send an e-mail to %s." % (FEEDBACKMAIL)
-        msg += " The submission was retried %s times on %s schedulers." % (sum([len(x) for x in scheddStats.taskErrors.values()]), len(scheddStats.taskErrors))
+        msg += " The submission was retried %s times on %s schedulers." % (sum([len(x) for x in list(scheddStats.taskErrors.values())]), len(scheddStats.taskErrors))
         msg += " These are the failures per Grid scheduler:\n %s" % (str(scheddStats.taskErrors))
 
         raise TaskWorkerException(msg, retry=(schedd != None))
@@ -502,7 +502,7 @@ class DagmanSubmitter(TaskAction.TaskAction):
         dagAd["RemoveKillSig"] = "SIGUSR1"
 
         with open('subdag.ad', 'w') as fd:
-            for k, v in dagAd.items():
+            for k, v in list(dagAd.items()):
                 if k == 'X509UserProxy':
                     v = os.path.basename(v)
                 if isinstance(v, str):

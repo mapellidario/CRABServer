@@ -65,7 +65,7 @@ class DBSDataDiscovery(DataDiscovery):
         # get all the RucioStorageElements (RSEs) which are of kind 'Disk'
         # locationsMap is a dictionary {block1:[locations], block2:[locations],...}
         diskLocationsMap = {}
-        for block, locations in locationsMap.items():
+        for block, locations in list(locationsMap.items()):
             # as of Sept 2020, tape RSEs ends with _Tape, go for the quick hack
             diskRSEs = [rse for rse in locations if not 'Tape' in rse]
             if  'T3_CH_CERN_OpenData' in diskRSEs:
@@ -392,9 +392,9 @@ class DBSDataDiscovery(DataDiscovery):
 
         # From now on code is not dependent from having used Rucio or PhEDEx
 
-        blocksWithLocation = locationsMap.keys()
+        blocksWithLocation = list(locationsMap.keys())
         if secondaryDataset:
-            secondaryBlocksWithLocation = secondaryLocationsMap.keys()
+            secondaryBlocksWithLocation = list(secondaryLocationsMap.keys())
 
         # filter out TAPE locations
         self.keepOnlyDiskRSEs(locationsMap)
@@ -438,14 +438,14 @@ class DBSDataDiscovery(DataDiscovery):
             if secondaryDataset:
                 moredetails = self.dbs.listDatasetFileDetails(secondaryDataset, getParents=False, getLumis=needLumiInfo, validFileOnly=0)
 
-                for secfilename, secinfos in moredetails.items():
+                for secfilename, secinfos in list(moredetails.items()):
                     secinfos['lumiobj'] = LumiList(runsAndLumis=secinfos['Lumis'])
 
                 self.logger.info("Beginning to match files from secondary dataset")
-                for dummyFilename, infos in filedetails.items():
+                for dummyFilename, infos in list(filedetails.items()):
                     infos['Parents'] = []
                     lumis = LumiList(runsAndLumis=infos['Lumis'])
-                    for secfilename, secinfos in moredetails.items():
+                    for secfilename, secinfos in list(moredetails.items()):
                         if lumis & secinfos['lumiobj']:
                             infos['Parents'].append(secfilename)
                 self.logger.info("Done matching files from secondary dataset")

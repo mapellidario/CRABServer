@@ -180,7 +180,7 @@ class MasterWorker(object):
             # one line for automatic parsing
             logger.info('TWSTART: %s', json.dumps(twstartDict))
             # multiple lines for humans to read
-            for k, v in twstartDict.items():
+            for k, v in list(twstartDict.items()):
                 logger.info('%s: %s', k, v)
             return
 
@@ -412,7 +412,7 @@ class MasterWorker(object):
 
             if pendingwork:
                 keys = ['tm_task_command', 'tm_taskname']
-                tasksInfo = [{k:v for k, v in task.items() if k in keys} for task in pendingwork]
+                tasksInfo = [{k:v for k, v in list(task.items()) if k in keys} for task in pendingwork]
                 self.logger.info("Retrieved a total of %d works", len(pendingwork))
                 self.logger.debug("Retrieved the following works: \n%s", str(tasksInfo))
 

@@ -152,7 +152,7 @@ class Master(object):
             # one line for automatic parsing
             logger.info('PUBSTART: %s', json.dumps(pubstartDict))
             # multiple lines for humans to read
-            for k, v in pubstartDict.items():
+            for k, v in list(pubstartDict.items()):
                 logger.info('%s: %s', k, v)
             return
 

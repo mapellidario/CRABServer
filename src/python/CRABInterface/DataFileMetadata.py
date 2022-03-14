@@ -83,7 +83,7 @@ class DataFileMetadata(object):
                 # 'created': "[b'/store/[...]-0CC47A7C34C8.root']",      ## THIS CONTAINS BYTES
                 # 'tmplfn': '/store/user/dmapelli/GenericTTbar/[...]/220113_142727/0000/output_7.root'}
                 self.logger.info("converting bytes into unicode in filemetadata - before - %s", filedict)
-                for key0, val0 in filedict.items():
+                for key0, val0 in list(filedict.items()):
                     if isinstance(val0, list):  # 'parents' and 'created'
                         filedict[key0]  = [decodeBytesToUnicode(el) for el in val0]
                     if isinstance(val0, dict):  # 'runlumi'
@@ -158,7 +158,7 @@ class DataFileMetadata(object):
         """
         self.logger.debug("Changing state of file %(outlfn)s in task %(taskname)s to %(filestate)s" % kwargs)
 
-        self.api.modify(self.FileMetaData.ChangeFileState_sql, **dict((k, [v]) for k, v in kwargs.items()))
+        self.api.modify(self.FileMetaData.ChangeFileState_sql, **dict((k, [v]) for k, v in list(kwargs.items())))
 
     def delete(self, taskname, hours):
         """ UNUSED method that deletes record from the FILEMETADATA table

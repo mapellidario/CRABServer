@@ -11,7 +11,7 @@ def attr(*args, **kwargs):
     def wrap_ob(ob):
         for name in args:
             setattr(ob, name, True)
-        for name, value in kwargs.items():
+        for name, value in list(kwargs.items()):
             setattr(ob, name, value)
         return ob
     return wrap_ob

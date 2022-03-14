@@ -86,7 +86,7 @@ class Splitter(TaskAction):
         #printing duplicated lumis if any
         lumiChecker = getattr(jobfactory, 'lumiChecker', None)
         if lumiChecker and lumiChecker.splitLumiFiles:
-            self.logger.warning("The input dataset contains the following duplicated lumis %s", lumiChecker.splitLumiFiles.keys())
+            self.logger.warning("The input dataset contains the following duplicated lumis %s", list(lumiChecker.splitLumiFiles.keys()))
             msg = "The CRAB3 server backend detected lumis split across files in the input dataset."
             msg += " Will apply the necessary corrections in the splitting algorithm. You can ignore this message."
             self.uploadWarning(msg, kwargs['task']['user_proxy'], kwargs['task']['tm_taskname'])

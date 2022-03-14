@@ -200,7 +200,7 @@ class HTCondorLocator(object):
         Saves Collector output in a memory cache
         """
         global CollectorCache
-        if cacheName in CollectorCache.keys():
+        if cacheName in list(CollectorCache.keys()):
             CollectorCache[cacheName]['ScheddAds'] = output
         else:
             CollectorCache[cacheName] = {}
@@ -213,7 +213,7 @@ class HTCondorLocator(object):
         """
         global CollectorCache
         now = int(time.time())
-        if cacheName in CollectorCache.keys():
+        if cacheName in list(CollectorCache.keys()):
             if (now - CollectorCache[cacheName]['updated']) < 1800:
                 return CollectorCache[cacheName]['ScheddAds']
             else:
