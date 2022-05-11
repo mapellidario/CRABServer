@@ -39,7 +39,7 @@ class RESTServerInfo(RESTEntity):
             next(self.api.query(None, None, "select NULL from DUAL")) #Checking database connection
             return [{"crabserver":"Welcome","version":__version__}]
 
-    def infonodb(self, **kwargs):
+    def infonodb(self, **keys):
         return [{"crabserver":"Welcome","version":__version__}]
 
     @conn_handler(services=['centralconfig'])
