@@ -179,3 +179,30 @@ def conn_handler(services):
             return func(*args, **kwargs)
         return wrapped_func
     return wrap
+
+import time
+
+class MeasureTime:
+    """
+    Context manager to measure how long a portion of code takes. 
+    It is intended to be used as:
+
+    logger = logging.getLogger()
+    with MeasureTime(logger, "{}.myfuncname".format(__name__)) as _:
+        myfuncname()
+    
+    """
+    def __init__(self, logger, metadata):
+        self.logger = logger
+        self.metadata = metadata
+
+    def __enter__(self):
+        self.perf_counter = time.perf_counter()
+        self.process_time = time.process_time()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.process_time = time.process_time() - self.process_time
+        self.perf_counter = time.perf_counter() - self.perf_counter
+        self.readout = 'tot: {:.4f} , proc: {:.4f}'.format(self.perf_counter, self.process_time )
+        self.logger.info("MeasureTime (seconds) - %s. %s", self.metadata, self.readout)
