@@ -110,6 +110,8 @@ class RESTFileMetadata(RESTEntity):
            :return: generator looping through the resulting db rows."""
         with MeasureTime(self.logger, "{} get.getFiles.list".format(__name__)) as _:
             files = list(self.jobmetadata.getFiles(taskname, filetype, howmany, lfnList))
+            import time
+            time.sleep(20)
         self.logger.debug("DM debug - %s", files[0])
         return files
 
