@@ -10,7 +10,7 @@ from CRABInterface.Regexps import RX_CHECKSUM, RX_CMSSITE, RX_CMSSW, RX_FILESTAT
     RX_GLOBALTAG, RX_HOURS, RX_JOBID, RX_LFN, RX_LUMILIST, RX_OUTDSLFN, RX_OUTTYPES, \
     RX_PARENTLFN, RX_PUBLISH, RX_RUNS, RX_TASKNAME, RX_ANYTHING
 from CRABInterface.DataFileMetadata import DataFileMetadata
-from python.CRABInterface.Utilities import MeasureTime
+from CRABInterface.Utilities import MeasureTime
 
 class RESTFileMetadata(RESTEntity):
     """REST entity to handle job metadata information"""
