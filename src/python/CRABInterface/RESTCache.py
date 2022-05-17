@@ -134,7 +134,7 @@ class RESTCache(RESTEntity):
                 # we only upload same sandbox once
                 alreadyThere = False
                 try:
-                    with MeasureTime(self.logger, "{}.get.upload.head_object".format(__name__)) as _:
+                    with MeasureTime(self.logger, "{} get.upload.head_object".format(__name__)) as _:
                         # from https://stackoverflow.com/a/38376288
                         self.s3_client.head_object(Bucket=self.s3_bucket, Key=s3_objectKey)
                     alreadyThere = True
@@ -144,7 +144,7 @@ class RESTCache(RESTEntity):
                     return ["", {}]  # this tells client not to upload
             expiration = 60 * 60  # 1 hour is good for retries and debugging
             try:
-                with MeasureTime(self.logger, "{}.get.upload.generate_presigned_post".format(__name__)) as _:
+                with MeasureTime(self.logger, "{} get.upload.generate_presigned_post".format(__name__)) as _:
                     response = self.s3_client.generate_presigned_post(
                         self.s3_bucket, s3_objectKey, ExpiresIn=expiration)
                 # this returns a dictionary like:
@@ -168,7 +168,7 @@ class RESTCache(RESTEntity):
             if objecttype in ['debugfiles', 'clientlog', 'twlog']:
                 expiration = 60*60 * 24 * 30 # for logs make url valid as long as we keep files (1 month)
             try:
-                with MeasureTime(self.logger, "{}.get.download.generate_presigned_post".format(__name__)) as _:
+                with MeasureTime(self.logger, "{} get.download.generate_presigned_post".format(__name__)) as _:
                     response = self.s3_client.generate_presigned_url('get_object',
                                             Params={'Bucket': self.s3_bucket, 'Key': s3_objectKey},
                                             ExpiresIn=expiration)
@@ -182,7 +182,7 @@ class RESTCache(RESTEntity):
             authz_operator(username=ownerName, group='crab3', role='operator')
             tempFile = '/tmp/boto.' + uuid.uuid4().hex
             try:
-                with MeasureTime(self.logger, "{}.get.retrieve.download_file".format(__name__)) as _:
+                with MeasureTime(self.logger, "{} get.retrieve.download_file".format(__name__)) as _:
                     self.s3_client.download_file(self.s3_bucket, s3_objectKey, tempFile)
             except ClientError as e:
                 raise ExecutionError("Connection to s3.cern.ch failed:\n%s" % str(e))
@@ -206,7 +206,7 @@ class RESTCache(RESTEntity):
             # https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-prefixes.html
             #
             fileNames = []
-            with MeasureTime(self.logger, "{}.get.list.get_paginator".format(__name__)) as _:
+            with MeasureTime(self.logger, "{} get.list.get_paginator".format(__name__)) as _:
                 paginator = self.s3_client.get_paginator('list_objects_v2')
             operation_parameters = {'Bucket': self.s3_bucket,
                                     'Prefix': username}
@@ -224,7 +224,7 @@ class RESTCache(RESTEntity):
             # return space used by username, in MBytes (rounded to integer)
             if not username:
                 raise MissingParameter('username is missing')
-            with MeasureTime(self.logger, "{}.get.used.get_paginator".format(__name__)) as _:
+            with MeasureTime(self.logger, "{} get.used.get_paginator".format(__name__)) as _:
                 paginator = self.s3_client.get_paginator('list_objects_v2')
             operation_parameters = {'Bucket': self.s3_bucket,
                                     'Prefix': username}
