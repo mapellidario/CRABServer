@@ -10,6 +10,7 @@ from CRABInterface.Regexps import RX_CHECKSUM, RX_CMSSITE, RX_CMSSW, RX_FILESTAT
     RX_GLOBALTAG, RX_HOURS, RX_JOBID, RX_LFN, RX_LUMILIST, RX_OUTDSLFN, RX_OUTTYPES, \
     RX_PARENTLFN, RX_PUBLISH, RX_RUNS, RX_TASKNAME, RX_ANYTHING
 from CRABInterface.DataFileMetadata import DataFileMetadata
+from python.CRABInterface.Utilities import MeasureTime
 
 class RESTFileMetadata(RESTEntity):
     """REST entity to handle job metadata information"""
@@ -104,7 +105,10 @@ class RESTFileMetadata(RESTEntity):
            :arg int howmany: how many rows to retrieve;
            :arg str lfnList: list of LFNs for which to retrieve metadata (a single LFN is also OK);
            :return: generator looping through the resulting db rows."""
-        return self.jobmetadata.getFiles(taskname, filetype, howmany, lfnList)
+        with MeasureTime(self.logger, "{} get.getFiles.list".format(__name__)) as _:
+            files = list(self.jobmetadata.getFiles(taskname, filetype, howmany, lfnList))
+        self.logger.debug("DM debug - %s", files[0])
+        return files
 
     @restcall
     def delete(self, taskname, hours):
