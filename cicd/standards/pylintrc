@@ -66,16 +66,16 @@ disable=F0401, E1103
 enable-basic=yes
 
 # Maximum number of arguments for function / method
-max-args=7
+max-args=100
 
 # Maximum number of locals for function / method body
-max-locals=30
+max-locals=100
 
 # Maximum number of return / yield for function / method body
 max-returns=15
 
 # Maximum number of branch for function / method body
-max-branchs=30
+max-branchs=100
 
 # Maximum number of statements in function / method body
 max-statements=100
@@ -89,25 +89,28 @@ no-docstring-rgx=__.*__
 min-name-length=3
 
 # Regular expression which should only match correct module names
-module-rgx=[A-Z][a-zA-Z0-9]+$
+attr-rgx=.*
+
+# Regular expression which should only match correct module names
+module-rgx=.*
 
 # Regular expression which should only match correct class names
-class-rgx=[A-Z][a-zA-Z0-9]+$
+class-rgx=.*
 
 # Regular expression which should only match correct function names
-function-rgx=([a-z][a-zA-Z0-9]*$)|([a-z][a-zA-Z0-9]*_$)
+function-rgx=.*
 
 # Regular expression which should only match correct method names
-method-rgx=([a-z][a-zA-Z0-9]*$)|([_]{2}[a-z]+[_]{2}$)|([a-z][a-zA-Z0-9]*_$)
+method-rgx=.*
 
 # Regular expression which should only match correct argument names
-argument-rgx=[a-z][a-zA-Z0-9]*$
+argument-rgx=.*
 
 # Regular expression which should only match correct variable names
-variable-rgx=([a-z][a-zA-Z0-9]*$|^_$)
+variable-rgx=.*
 
 # Regular expression which should only match correct class attr names
-attr-rgx=[a-z][a-zA-Z0-9]*$
+attr-rgx=.*
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,ex,
@@ -204,6 +207,9 @@ max-module-lines=1000
 # tab).
 indent-string='    '
 
+[tool.pylint.refactoring]
+# C0209: consider-using-f-string, Formatting a regular string which could be a f-string
+disable=C0209
 
 
 # checks for:
