@@ -640,9 +640,9 @@ if __name__ == "__main__":
         preCmd += 'export HOME=${HOME:-$PWD}; '
         # temporary quick fix for #7413, CMSSW 12_6 requires new env variable
         preCmd += 'export SITECONFIG_PATH=/cvmfs/cms.cern.ch/SITECONF/local; '
-        # needed for accessing EOS at RAL (Echo). See https://ggus.eu/index.php?mode=ticket_info&ticket_id=155272
-        if os.getenv('XrdSecGSISRVNAMES'):
-            preCmd += 'export XrdSecGSISRVNAMES=%s; ' % os.getenv('XrdSecGSISRVNAMES')
+        # # needed for accessing EOS at RAL (Echo). See https://ggus.eu/index.php?mode=ticket_info&ticket_id=155272
+        # if os.getenv('XrdSecGSISRVNAMES'):
+        #     preCmd += 'export XrdSecGSISRVNAMES=%s; ' % os.getenv('XrdSecGSISRVNAMES')
         print("==== %s Execution started at %s ====" % (applicationName, time.asctime(time.gmtime())))
         if not options.scriptExe :
             cmd = 'cmsRun -p PSet.py -j FrameworkJobReport.xml'
