@@ -11,7 +11,13 @@
 # to save full current environment into file, and whenever it is needed we can load
 # it. Be aware, that there are some read-only variables, like: BASHOPTS, BASH_VERSINFO,
 # EUID, PPID, SHELLOPTS, UID, etc.
-set | sed 's/^/export /g' > startup_environment.sh
+
+# CRAB
+set > startup_environment.sh
+sed -e 's/^/export /' startup_environment.sh > tmp_env.sh
+mv tmp_env.sh startup_environment.sh
+# WMCore new, broken?
+#set | sed 's/^/export /g' > startup_environment.sh
 
 # Saving START_TIME and when job finishes, check if runtime is not lower than 20m
 # If it is lower, sleep the difference. Will not sleep if CRAB3_RUNTIME_DEBUG is set.
