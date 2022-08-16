@@ -79,6 +79,8 @@ def readFileFromTarball(filename, tarball):
         try:
             f = tar_file.extractfile(filename)
             content = f.read()
+            # TODO we could use decodeBytesToUnicode from WMCore/src/python/Utils/Utilities.py
+            content = content.decode("utf8") if isinstance(content, bytes) else content
             break
         except KeyError as er:
             # Don`t exit due to KeyError, print error. EventBased and FileBased does not have run and lumis
