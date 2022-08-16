@@ -15,12 +15,13 @@ import pickle
 import signal
 import os.path
 import logging
-import commands
+import subprocess
 import traceback
 from ast import literal_eval
 from optparse import OptionParser, BadOptionError, AmbiguousOptionError
 
 import WMCore.Storage.SiteLocalConfig as SiteLocalConfig
+from Utils.Utilities import decodeBytesToUnicode
 from TweakPSet import prepareTweakingScript
 
 # replicate here code from ServerUtilities.py to avoid importing CRABServer in jobs
@@ -384,7 +385,7 @@ def prepSandbox(opts):
     print("==== Sandbox untarring STARTING at %s ====" % time.asctime(time.gmtime()))
 
     #The user sandbox.tar.gz has to be unpacked no matter what (even in DEBUG mode)
-    print(commands.getoutput('tar xfm %s' % opts.archiveJob))
+    print(subprocess.getoutput('tar xfm %s' % opts.archiveJob))
     print("==== Sandbox untarring FINISHED at %s ====" % time.asctime(time.gmtime()))
 
     #move the pset in the right place
@@ -408,7 +409,7 @@ def extractUserSandbox(archiveJob, cmsswVersion):
     # will be executed from the job working directory, so we move "up"
     # the PSet which is also in the user sandbox
     os.chdir(cmsswVersion)
-    print(commands.getoutput('tar xfm %s ' % os.path.join('..', archiveJob)))
+    print(subprocess.getoutput('tar xfm %s ' % os.path.join('..', archiveJob)))
     os.rename('PSet.py','../PSet.py')
     os.rename('PSet.pkl','../PSet.pkl')
     os.chdir('..')
@@ -423,8 +424,9 @@ def getProv(filename, scram):
         print(msg)
         mintime()
         sys.exit(EC_CMSRunWrapper)
-    output = scram.getStdout()
+    output = decodeBytesToUnicode(scram.getStdout())
     return output
+
 
 def executeUserApplication(command, scram):
     """
@@ -440,7 +442,8 @@ def executeUserApplication(command, scram):
         print("Error executing application in CMSSW environment.\n\tSee stdout log")
     else:
         with open('cmsRun-stdout.log', 'w') as fh:
-            fh.write(scram.getStdout())
+            cmsrun_stdout = decodeBytesToUnicode(scram.getStdout())
+            fh.write(cmsrun_stdout)
     return ret
 
 def AddChecksums(report):
@@ -601,6 +604,8 @@ if __name__ == "__main__":
             version=options.cmsswVersion,
             directory=os.getcwd(),
             architecture=options.scramArch,
+            # startEnvCmd="source startup_environment.sh && source $CMSSET_DEFAULT_PATH",
+            envCmd="source $CMSSET_DEFAULT_PATH",
             )
 
         print("==== SCRAM Obj CREATED at %s ====" % time.asctime(time.gmtime()))
@@ -634,13 +639,14 @@ if __name__ == "__main__":
 
         jobExitCode = None
         applicationName = 'CMSSW JOB' if not options.scriptExe else 'ScriptEXE'
-        # no matter what we run, it is very likely to need proxy location
-        preCmd = 'export X509_USER_PROXY=%s; ' % os.getenv('X509_USER_PROXY')
-        # needed for root problem with $HOME/.root.mimes, #6801
-        preCmd += 'export HOME=${HOME:-$PWD}; '
-        # needed for accessing EOS at RAL (Echo). See https://ggus.eu/index.php?mode=ticket_info&ticket_id=155272
-        if os.getenv('XrdSecGSISRVNAMES'):
-            preCmd += 'export XrdSecGSISRVNAMES=%s; ' % os.getenv('XrdSecGSISRVNAMES')
+        ## if everything goes well, these should come from the startup environment
+        # # no matter what we run, it is very likely to need proxy location
+        # preCmd = 'export X509_USER_PROXY=%s; ' % os.getenv('X509_USER_PROXY')
+        # # needed for root problem with $HOME/.root.mimes, #6801
+        # preCmd += 'export HOME=${HOME:-$PWD}; '
+        # # needed for accessing EOS at RAL (Echo). See https://ggus.eu/index.php?mode=ticket_info&ticket_id=155272
+        # if os.getenv('XrdSecGSISRVNAMES'):
+        #     preCmd += 'export XrdSecGSISRVNAMES=%s; ' % os.getenv('XrdSecGSISRVNAMES')
         print("==== %s Execution started at %s ====" % (applicationName, time.asctime(time.gmtime())))
         if not options.scriptExe :
             cmd = 'cmsRun -p PSet.py -j FrameworkJobReport.xml'
@@ -650,7 +656,7 @@ if __name__ == "__main__":
             os.chmod(options.scriptExe, st.st_mode | stat.S_IEXEC)
             cmd = os.getcwd() + "/%s %s %s" %\
                   (options.scriptExe, options.jobNumber, " ".join(json.loads(options.scriptArgs)))
-        cmd = preCmd + cmd
+        # cmd = preCmd + cmd
         applicationExitCode = executeUserApplication(cmd, scram)
         if applicationExitCode:
             print("==== Execution FAILED at %s ====" % time.asctime(time.gmtime()))
@@ -670,7 +676,7 @@ if __name__ == "__main__":
                 # e.g. from xroot https://github.com/dmwm/CRABServer/issues/6640#issuecomment-909362639
                 print("Sanitize FJR")
                 cmd = 'cat -v FrameworkJobReport.xml > sane; mv sane FrameworkJobReport.xml'
-                print(commands.getoutput(cmd))
+                print(subprocess.getoutput(cmd))
                 # parse FJR
                 rep = Report("cmsRun")
                 rep.parse('FrameworkJobReport.xml', "cmsRun")
@@ -700,7 +706,7 @@ if __name__ == "__main__":
         # e.g. from xroot https://github.com/dmwm/CRABServer/issues/6640#issuecomment-909362639
         print("Sanitize FJR")
         cmd = 'cat -v FrameworkJobReport.xml > sane; mv sane FrameworkJobReport.xml'
-        print(commands.getoutput(cmd))
+        print(subprocess.getoutput(cmd))
         # parse FJR
         rep = Report("cmsRun")
         rep.parse('FrameworkJobReport.xml', "cmsRun")
