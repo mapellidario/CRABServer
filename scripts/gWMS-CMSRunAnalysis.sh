@@ -11,14 +11,10 @@
 # to save full current environment into file, and whenever it is needed we can load
 # it. Be aware, that there are some read-only variables, like: BASHOPTS, BASH_VERSINFO,
 # EUID, PPID, SHELLOPTS, UID, etc.
-set > startup_environment.sh
-sed -e 's/^/export /' startup_environment.sh > tmp_env.sh
-mv tmp_env.sh startup_environment.sh
-export JOBSTARTDIR=$PWD
+set | sed 's/^/export /g' > startup_environment.sh
 
 # Saving START_TIME and when job finishes, check if runtime is not lower than 20m
 # If it is lower, sleep the difference. Will not sleep if CRAB3_RUNTIME_DEBUG is set.
-START_TIME=$(date +%s)
 function finish {
   chirp_exit_code
   END_TIME=$(date +%s)
@@ -87,11 +83,10 @@ echo "Hostname:   $(hostname -f)"
 echo "System:     $(uname -a)"
 echo "Arguments are $@"
 
+# what does this do? do we need this?
 exec 2>&1
-touch jobReport.json
-touch WMArchiveReport.json
 
-echo "SCRAM_ARCH=$SCRAM_ARCH"
+# CRAB
 CRAB_oneEventMode=0
 if [ "X$_CONDOR_JOB_AD" != "X" ];
 then
@@ -124,6 +119,9 @@ then
    echo "======== HTCONDOR JOB SUMMARY at $(TZ=GMT date) FINISH ========"
 fi
 
+# CRAB
+touch jobReport.json
+touch WMArchiveReport.json
 #MM: Are these two lines needed?
 touch jobReport.json.$CRAB_Id
 touch WMArchiveReport.json.$CRAB_Id
