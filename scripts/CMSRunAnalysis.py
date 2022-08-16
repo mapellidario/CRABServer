@@ -440,7 +440,9 @@ def executeUserApplication(command, scram):
         print("Error executing application in CMSSW environment.\n\tSee stdout log")
     else:
         with open('cmsRun-stdout.log', 'w') as fh:
-            fh.write(scram.getStdout())
+            cmsrun_stdout = scram.getStdout()
+            cmsrun_stdout = cmsrun_stdout.decode("utf8") if isinstance(cmsrun_stdout, bytes) else cmsrun_stdout
+            fh.write(cmsrun_stdout)
     return ret
 
 def AddChecksums(report):
