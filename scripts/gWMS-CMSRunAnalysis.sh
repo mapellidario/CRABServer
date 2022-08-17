@@ -19,6 +19,15 @@
 # WMCore
 # these lines are required by src/python/WMCore/Storage/Backends/GFAL2Impl.py !!
 set | sed 's/^/export /g' > startup_environment.sh
+# CRAB
+echo "======== Startup environment dump STARTING ========"
+echo "DM DEBUG: startup_environment.sh"
+cat startup_environment.sh
+# for i in `env`; do
+#   echo "== STARTUP ENV: $i"
+# done
+echo "======== Startup environment dump FINISHING ========"
+
 export JOBSTARTDIR=$PWD
 
 
