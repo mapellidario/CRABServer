@@ -301,7 +301,7 @@ echo "======== python bootstrap for stageout at $(TZ=GMT date) FINISHED ========
 echo "======== Stageout at $(TZ=GMT date) STARTING ========"
 rm -f wmcore_initialized
 # Note we prevent buffering of stdout/err -- this is due to observed issues in mixing of out/err for stageout plugins
-PYTHONUNBUFFERED=1 python3 cmscp.py
+PYTHONUNBUFFERED=1 $pythonCommand cmscp.py
 STAGEOUT_EXIT_STATUS=$?
 
 if [ ! -e wmcore_initialized ];
