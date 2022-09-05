@@ -62,8 +62,6 @@ EC_ReportHandlingErr =  50115
 EC_WGET =               99998 #TODO define an error code
 EC_PsetHash           = 80453
 
-ENVCMD = "source startup_environment.sh"
-
 def mintime():
     # enforce a minimum running time for failing jobs
     mymin = 20*60 # 20 minutes was used in the past

@@ -191,6 +191,7 @@ echo "==== Local directory contents dump FINISHING ===="
 echo "======== CMSRunAnalysis.py STARTING at $(TZ=GMT date) ========"
 echo "Now running the CMSRunAnalysis.py job in `pwd`..."
 set -x
+export envCmd=source startup_environment.sh
 $pythonCommand CMSRunAnalysis.py -r "`pwd`" "$@"
 jobrc=$?
 set +x
