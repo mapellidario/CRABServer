@@ -21,17 +21,8 @@ from ast import literal_eval
 from optparse import OptionParser, BadOptionError, AmbiguousOptionError
 
 import WMCore.Storage.SiteLocalConfig as SiteLocalConfig
+from Utils.Utilities import decodeBytesToUnicode
 from TweakPSet import prepareTweakingScript
-
-def decodeBytesToUnicode(value):
-    """
-    copy of WMCore/src/python/Utils/Utilities.py:decodeBytesToUnicode
-    TODO after we ship that file to the workernode, we can remove this function
-    """
-    if isinstance(value, bytes):
-        return value.decode("utf8") 
-    return value
-
 
 # replicate here code from ServerUtilities.py to avoid importing CRABServer in jobs
 # see there for more documentation. Ideally could move this to WMCore
