@@ -62,6 +62,8 @@ EC_ReportHandlingErr =  50115
 EC_WGET =               99998 #TODO define an error code
 EC_PsetHash           = 80453
 
+ENVCMD = "source startup_environment.sh"
+
 def mintime():
     # enforce a minimum running time for failing jobs
     mymin = 20*60 # 20 minutes was used in the past
@@ -435,7 +437,7 @@ def executeUserApplication(command, scram):
     Scram() never raises and returns the exit code from executing 'command'
     """
     with tempSetLogLevel(logger=logging.getLogger(), level=logging.DEBUG):
-        ret = scram(command, runtimeDir=os.getcwd())
+        ret = scram(command, runtimeDir=os.getcwd(), envCmd=ENVCMD)
     if ret > 0:
         with open('cmsRun-stdout.log', 'w') as fh:
             fh.write(scram.diagnostic())
