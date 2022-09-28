@@ -18,8 +18,8 @@
 # mv tmp_env.sh startup_environment.sh
 # WMCore
 # these lines are required by src/python/WMCore/Storage/Backends/GFAL2Impl.py !!
-set | sed 's/^/export /g' > startup_environment.sh
 
+# set | sed 's/^/export /g' > startup_environment.sh
 save_env() {
     export DMDEBUGVAR=dmdebugvalue
     export JOBSTARTDIR=$PWD
