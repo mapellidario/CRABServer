@@ -19,6 +19,17 @@
 # WMCore
 # these lines are required by src/python/WMCore/Storage/Backends/GFAL2Impl.py !!
 set | sed 's/^/export /g' > startup_environment.sh
+
+save_env() {
+    export DMDEBUGVAR=dmdebugvalue
+    export JOBSTARTDIR=$PWD
+    export HOME=${HOME:-$PWD}
+
+    declare -p | grep -vi "path" > startup_environment.sh
+}
+
+save_env
+
 # CRAB
 echo "======== Startup environment dump STARTING ========"
 echo "DM DEBUG: startup_environment.sh"
@@ -27,9 +38,6 @@ cat startup_environment.sh
 #   echo "== STARTUP ENV: $i"
 # done
 echo "======== Startup environment dump FINISHING ========"
-
-export JOBSTARTDIR=$PWD
-
 
 # Saving START_TIME and when job finishes, check if runtime is not lower than 20m
 # If it is lower, sleep the difference. Will not sleep if CRAB3_RUNTIME_DEBUG is set.
