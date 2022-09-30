@@ -6,7 +6,6 @@
 # difficult-to-impossible to run.
 #
 
-. env-CMSRunAnalysis.sh
 
 # On some sites we know there was some problems with environment cleaning
 # with using 'env -i'. To overcome this issue, whenever we start a job, we have
@@ -22,14 +21,23 @@
 # these lines are required by src/python/WMCore/Storage/Backends/GFAL2Impl.py !!
 
 # set | sed 's/^/export /g' > startup_environment.sh
-env_save
 
 # CRAB
-echo "======== Startup environment dump STARTING ========"
-echo "DM DEBUG: ls-lrth && cat startup_environment.sh"
+echo "======== Startup environment - STARTING ========"
+set -x
+
+. $(basename -- "$0")/env-CMSRunAnalysis.sh
+env_save
+
+echo "DM DEBUG: cat startup_environment.sh"
+basename -- "$0"
+dirname -- "$0"
+echo $PWD
 ls -lrth
 cat startup_environment.sh
-echo "======== Startup environment dump FINISHING ========"
+
+set +x
+echo "======== Startup environment - FINISHING ========"
 
 # Saving START_TIME and when job finishes, check if runtime is not lower than 20m
 # If it is lower, sleep the difference. Will not sleep if CRAB3_RUNTIME_DEBUG is set.
