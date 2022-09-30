@@ -26,7 +26,8 @@
 echo "======== Startup environment - STARTING ========"
 set -x
 
-. $(basename -- "$0")/env-CMSRunAnalysis.sh
+# TODO FIXME
+. /srv/env-CMSRunAnalysis.sh
 env_save
 
 echo "DM DEBUG: cat startup_environment.sh"
