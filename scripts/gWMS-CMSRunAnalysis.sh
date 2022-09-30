@@ -6,6 +6,8 @@
 # difficult-to-impossible to run.
 #
 
+. env-CMSRunAnalysis.sh
+
 # On some sites we know there was some problems with environment cleaning
 # with using 'env -i'. To overcome this issue, whenever we start a job, we have
 # to save full current environment into file, and whenever it is needed we can load
@@ -20,15 +22,7 @@
 # these lines are required by src/python/WMCore/Storage/Backends/GFAL2Impl.py !!
 
 # set | sed 's/^/export /g' > startup_environment.sh
-save_env() {
-    export DMDEBUGVAR=dmdebugvalue
-    export JOBSTARTDIR=$PWD
-    export HOME=${HOME:-$PWD}
-
-    declare -p | grep -vi "path" > startup_environment.sh
-}
-
-save_env
+env_save
 
 # CRAB
 echo "======== Startup environment dump STARTING ========"
@@ -161,7 +155,7 @@ time sh ./CMSRunAnalysis.sh "$@" --oneEventMode=$CRAB_oneEventMode
 EXIT_STATUS=$?
 echo "CMSRunAnalysis.sh complete at $(TZ=GMT date) with (short) exit status $EXIT_STATUS"
 
-echo "======== CMSRunAnalsysis.sh at $(TZ=GMT date) FINISHING ========"
+echo "======== CMSRunAnalysis.sh at $(TZ=GMT date) FINISHING ========"
 
 mv jobReport.json jobReport.json.$CRAB_Id
 mv WMArchiveReport.json WMArchiveReport.json.$CRAB_Id
