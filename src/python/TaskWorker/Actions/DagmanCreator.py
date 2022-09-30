@@ -519,6 +519,7 @@ class DagmanCreator(TaskAction):
             info['additional_input_file'] += ", sandbox.tar.gz"
         info['additional_input_file'] += ", run_and_lumis.tar.gz"
         info['additional_input_file'] += ", input_files.tar.gz"
+        info['additional_input_file'] += ", env-CMSRunAnalysis.sh"
 
         info['max_disk_space'] = MAX_DISK_SPACE
 
