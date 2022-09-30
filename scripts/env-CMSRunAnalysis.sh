@@ -6,7 +6,7 @@ env_save() {
     # - gWMS-CMSRunAnalysis.sh: when running a job on the global pool
     # - crab preparelocal, crab submit --dryrun: when running a job locally
 
-    export DMDEBUGVAR=dmdebugvalue
+    export DMDEBUGVAR=dmdebugvalue-env-cmsrunanalysis
     export JOBSTARTDIR=$PWD
     export HOME=${HOME:-$PWD}
 

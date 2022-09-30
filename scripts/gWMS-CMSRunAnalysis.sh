@@ -26,11 +26,9 @@ env_save
 
 # CRAB
 echo "======== Startup environment dump STARTING ========"
-echo "DM DEBUG: startup_environment.sh"
+echo "DM DEBUG: ls-lrth && cat startup_environment.sh"
+ls -lrth
 cat startup_environment.sh
-# for i in `env`; do
-#   echo "== STARTUP ENV: $i"
-# done
 echo "======== Startup environment dump FINISHING ========"
 
 # Saving START_TIME and when job finishes, check if runtime is not lower than 20m
