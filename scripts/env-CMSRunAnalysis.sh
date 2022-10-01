@@ -25,3 +25,32 @@ env_set_local () {
 
 }
 
+env_cms_load() {
+    ### source the CMSSW stuff using either OSG or LCG style entry env. or CVMFS
+    echo "======== CMS environment load starting at $(TZ=GMT date) ========"
+    export CMSSET_DEFAULT_PATH=""
+    if [ -f "$VO_CMS_SW_DIR"/cmsset_default.sh ]
+    then  #   LCG style --
+        echo "WN with a LCG style environment, thus using VO_CMS_SW_DIR=$VO_CMS_SW_DIR"
+        export CMSSET_DEFAULT_PATH=$VO_CMS_SW_DIR/cmsset_default.sh
+    elif [ -f "$OSG_APP"/cmssoft/cms/cmsset_default.sh ]
+    then  #   OSG style --
+        echo "WN with an OSG style environment, thus using OSG_APP=$OSG_APP"
+        export CMSSET_DEFAULT_PATH=$OSG_APP/cmssoft/cms/cmsset_default.sh CMSSW_3_3_2
+    elif [ -f "$CVMFS"/cms.cern.ch/cmsset_default.sh ]
+    then
+        echo "WN with CVMFS environment, thus using CVMFS=$CVMFS"
+        export CMSSET_DEFAULT_PATH=$CVMFS/cms.cern.ch/cmsset_default.sh
+    elif [ -f /cvmfs/cms.cern.ch/cmsset_default.sh ]
+    then  # ok, lets call it CVMFS then
+        export CVMFS=/cvmfs/cms.cern.ch
+        echo "WN missing VO_CMS_SW_DIR/OSG_APP/CVMFS environment variable, forcing it to CVMFS=$CVMFS"
+        export CMSSET_DEFAULT_PATH=$CVMFS/cmsset_default.sh
+    else
+        echo "Error during job bootstrap: VO_CMS_SW_DIR, OSG_APP, CVMFS or /cvmfs were not found." >&2
+        echo "  Because of this, we can't load CMSSW. Not good." >&2
+        exit 11003
+    fi
+    . $CMSSET_DEFAULT_PATH
+    echo -e "========  CMS environment load finished at $(TZ=GMT date) ========\n"
+}
