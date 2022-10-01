@@ -25,6 +25,7 @@ echo "Current system : $(uname -a)"
 echo "Current processor: $(cat /proc/cpuinfo |grep name|sort|uniq)"
 
 # WMCore and CRAB
+source ./env-CMSRunAnalysis.sh
 env_cms_load
 
 # WMCore
