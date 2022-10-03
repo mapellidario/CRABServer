@@ -16,7 +16,7 @@ env_save() {
     # (declare -pf | grep cmsrel) || echo no cmsrel 3
 
     ## FIXME TODO
-    # declare -p | grep -vi "path" > startup_environment.sh
+    declare -p | grep -vi "path" > startup_environment.sh
 
     # echo "DM DEBUG: cat startup_environment.sh"
     # basename -- "$0"
