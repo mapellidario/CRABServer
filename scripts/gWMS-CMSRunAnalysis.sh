@@ -30,13 +30,6 @@ set -x
 source ./env-CMSRunAnalysis.sh
 env_save
 
-echo "DM DEBUG: cat startup_environment.sh"
-basename -- "$0"
-dirname -- "$0"
-echo $PWD
-ls -lrth
-cat startup_environment.sh
-
 set +x
 echo "======== Startup environment - FINISHING ========"
 

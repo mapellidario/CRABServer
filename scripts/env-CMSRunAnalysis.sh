@@ -16,6 +16,14 @@ env_save() {
 
     declare -p | grep -vi "path" > startup_environment.sh
     # declare -pf >> startup_environment.sh
+
+    echo "DM DEBUG: cat startup_environment.sh"
+    basename -- "$0"
+    dirname -- "$0"
+    echo $PWD
+    ls -lrth
+    cat startup_environment.sh
+
 }
 
 env_set_local () {
