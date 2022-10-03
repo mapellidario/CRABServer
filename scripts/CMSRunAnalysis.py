@@ -604,7 +604,8 @@ if __name__ == "__main__":
             version=options.cmsswVersion,
             directory=os.getcwd(),
             architecture=options.scramArch,
-            startEnvCmd="source startup_environment.sh && source $CMSSET_DEFAULT_PATH",
+            # startEnvCmd="source startup_environment.sh && source $CMSSET_DEFAULT_PATH",
+            cleanEnv=False,
             )
 
         print("==== SCRAM Obj CREATED at %s ====" % time.asctime(time.gmtime()))
