@@ -10,15 +10,9 @@ env_save() {
     export JOBSTARTDIR=$PWD
     export HOME=${HOME:-$PWD}
 
-    # echo DMDEBUG1: $0
-    # echo DMDEBUG2: $($0 --version)
-    # echo DMDEBUG3: $(declare -x -F)
-    # echo DMDEBUG4: $(export -f)
-    echo DMDEBUG
-
-    env | grep cmsrel
-    declare -p | grep cmsrel
-    declare -pf | grep cmsrel
+    (env | grep cmsrel) || echo no cmsrel 1
+    (declare -p | grep cmsrel) || echo no cmsrel 2
+    (declare -pf | grep cmsrel) || echo no cmsrel 3
 
     declare -p | grep -vi "path" > startup_environment.sh
     # declare -pf >> startup_environment.sh
