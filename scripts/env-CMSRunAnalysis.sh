@@ -14,7 +14,8 @@ env_save() {
     # echo DMDEBUG2: $($0 --version)
     # echo DMDEBUG3: $(declare -x -F)
     # echo DMDEBUG4: $(export -f)
-    echo DMDEBUG: 
+    echo DMDEBUG
+
     env | grep cmsrel
     declare -p | grep cmsrel
     declare -pf | grep cmsrel
