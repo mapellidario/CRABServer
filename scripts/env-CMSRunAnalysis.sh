@@ -10,9 +10,11 @@ env_save() {
     export JOBSTARTDIR=$PWD
     export HOME=${HOME:-$PWD}
 
-    (env | grep cmsrel) || echo no cmsrel 1
-    (declare -p | grep cmsrel) || echo no cmsrel 2
-    (declare -pf | grep cmsrel) || echo no cmsrel 3
+    # this should be passed automatically from cmsset_default.sh
+    # # temporary quick fix for #7413, CMSSW 12_6 requires new env variable
+    # export SITECONFIG_PATH=/cvmfs/cms.cern.ch/SITECONF/local
+
+    declare -pf | grep cmsrel
 
     declare -p | grep -vi "path" > startup_environment.sh
     # declare -pf >> startup_environment.sh
