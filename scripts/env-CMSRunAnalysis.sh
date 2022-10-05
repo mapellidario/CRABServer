@@ -14,16 +14,13 @@ env_save() {
     # # temporary quick fix for #7413, CMSSW 12_6 requires new env variable
     # export SITECONFIG_PATH=/cvmfs/cms.cern.ch/SITECONF/local
 
-    declare -pf | grep cmsrel
-
-    declare -p | grep -vi "path" > startup_environment.sh
-    # declare -pf >> startup_environment.sh
+    declare -p > startup_environment.sh
 
     echo "DM DEBUG: cat startup_environment.sh"
-    basename -- "$0"
-    dirname -- "$0"
-    echo $PWD
-    ls -lrth
+    # basename -- "$0"
+    # dirname -- "$0"
+    # echo $PWD
+    # ls -lrth
     cat startup_environment.sh
 
 }
@@ -69,4 +66,105 @@ env_cms_load() {
     . $CMSSET_DEFAULT_PATH
     echo "export CMSSET_DEFAULT_PATH=$CMSSET_DEFAULT_PATH" >> startup_environment.sh
     echo -e "========  CMS environment load finished at $(TZ=GMT date) ========\n"
+}
+
+load_comp_python() {
+
+echo "======== python bootstrap for stageout at $(TZ=GMT date) STARTING ========"
+# WMCore
+# Python library required for Python2/Python3 compatibility through "future"
+PY3_FUTURE_VERSION=0.18.2
+# Saving START_TIME and when job finishes END_TIME.
+START_TIME=$(date +%s)
+WMA_DEFAULT_OS=rhel7
+export JOBSTARTDIR=$PWD
+
+# # CRAB
+# # use python from COMP
+# # Python library required for Python2/Python3 compatibility through "future"
+# PY_FUTURE_VERSION=0.18.2
+# # First, decide which COMP ScramArch to use based on the required OS
+# if [ "$REQUIRED_OS" = "rhel7" ];
+# then
+#     WMA_SCRAM_ARCH=slc7_amd64_gcc630
+# else
+#     WMA_SCRAM_ARCH=slc6_amd64_gcc493
+# fi
+# echo "Job requires OS: $REQUIRED_OS, thus setting ScramArch to: $WMA_SCRAM_ARCH"
+
+# WMCore
+# First, decide which COMP ScramArch to use based on the required OS and Architecture
+THIS_ARCH=`uname -m`  # if it's PowerPC, it returns `ppc64le`
+# if this job can run at any OS, then use rhel7 as default
+if [ "$REQUIRED_OS" = "any" ]
+then
+    WMA_SCRAM_ARCH=${WMA_DEFAULT_OS}_${THIS_ARCH}
+else
+    WMA_SCRAM_ARCH=${REQUIRED_OS}_${THIS_ARCH}
+fi
+echo "Job requires OS: $REQUIRED_OS, thus setting ScramArch to: $WMA_SCRAM_ARCH"
+
+## CRAB
+# suffix=etc/profile.d/init.sh
+# if [ -d "$VO_CMS_SW_DIR"/COMP/"$WMA_SCRAM_ARCH"/external/python ]
+# then
+#     prefix="$VO_CMS_SW_DIR"/COMP/"$WMA_SCRAM_ARCH"/external/python
+# elif [ -d "$OSG_APP"/cmssoft/cms/COMP/"$WMA_SCRAM_ARCH"/external/python ]
+# then
+#     prefix="$OSG_APP"/cmssoft/cms/COMP/"$WMA_SCRAM_ARCH"/external/python
+# elif [ -d "$CVMFS"/COMP/"$WMA_SCRAM_ARCH"/external/python ]
+# then
+#     prefix="$CVMFS"/COMP/"$WMA_SCRAM_ARCH"/external/python
+# else
+#     echo "Error during job bootstrap: job environment does not contain the init.sh script." >&2
+#     echo "  Because of this, we can't load CMSSW. Not good." >&2
+#     exit 11004
+# fi
+# compPythonPath=`echo $prefix | sed 's|/python||'`
+# echo "WMAgent bootstrap: COMP Python path is: $compPythonPath"
+# latestPythonVersion=`ls -t "$prefix"/*/"$suffix" | head -n1 | sed 's|.*/external/python/||' | cut -d '/' -f1`
+# pythonMajorVersion=`echo $latestPythonVersion | cut -d '.' -f1`
+# pythonCommand="python"${pythonMajorVersion}
+# echo "WMAgent bootstrap: latest python release is: $latestPythonVersion"
+# source "$prefix/$latestPythonVersion/$suffix"
+# source "$compPythonPath/py2-future/$PY_FUTURE_VERSION/$suffix"
+
+# WMCore
+suffix=etc/profile.d/init.sh
+if [ -d "$VO_CMS_SW_DIR"/COMP/"$WMA_SCRAM_ARCH"/external/python3 ]
+then
+    prefix="$VO_CMS_SW_DIR"/COMP/"$WMA_SCRAM_ARCH"/external/python3
+elif [ -d "$OSG_APP"/cmssoft/cms/COMP/"$WMA_SCRAM_ARCH"/external/python3 ]
+then
+    prefix="$OSG_APP"/cmssoft/cms/COMP/"$WMA_SCRAM_ARCH"/external/python3
+elif [ -d "$CVMFS"/COMP/"$WMA_SCRAM_ARCH"/external/python3 ]
+then
+    prefix="$CVMFS"/COMP/"$WMA_SCRAM_ARCH"/external/python3
+else
+    echo "Failed to find a COMP python3 installation in the worker node setup." >&2
+    echo "  Without a known python3, there is nothing else we can do with this job. Quiting!" >&2
+    exit 11004
+fi
+compPythonPath=`echo $prefix | sed 's|/python3||'`
+echo "WMAgent bootstrap: COMP Python path is: $compPythonPath"
+latestPythonVersion=`ls -t "$prefix"/*/"$suffix" | head -n1 | sed 's|.*/external/python3/||' | cut -d '/' -f1`
+pythonMajorVersion=`echo $latestPythonVersion | cut -d '.' -f1`
+pythonCommand="python"${pythonMajorVersion}
+echo "WMAgent bootstrap: latest python3 release is: $latestPythonVersion"
+source "$prefix/$latestPythonVersion/$suffix"
+echo "Sourcing python future library from: ${compPythonPath}/py3-future/${PY3_FUTURE_VERSION}/${suffix}"
+source "$compPythonPath/py3-future/${PY3_FUTURE_VERSION}/${suffix}"
+
+command -v $pythonCommand > /dev/null
+rc=$?
+if [[ $rc != 0 ]]
+then
+    echo "Error during job bootstrap: python isn't available on the worker node." >&2
+    echo "  WMCore/WMAgent REQUIRES at least python2" >&2
+    exit 11005
+else
+    echo "WMAgent bootstrap: found $pythonCommand at.."
+    echo `which $pythonCommand`
+fi
+echo "======== python bootstrap for stageout at $(TZ=GMT date) FINISHED ========"
 }
