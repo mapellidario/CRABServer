@@ -21,7 +21,6 @@ from ast import literal_eval
 from optparse import OptionParser, BadOptionError, AmbiguousOptionError
 
 import WMCore.Storage.SiteLocalConfig as SiteLocalConfig
-from Utils.Utilities import decodeBytesToUnicode
 from TweakPSet import prepareTweakingScript
 
 # replicate here code from ServerUtilities.py to avoid importing CRABServer in jobs
@@ -424,7 +423,7 @@ def getProv(filename, scram):
         print(msg)
         mintime()
         sys.exit(EC_CMSRunWrapper)
-    output = decodeBytesToUnicode(scram.getStdout())
+    output = scram.getStdout()
     return output
 
 
@@ -442,7 +441,7 @@ def executeUserApplication(command, scram, cleanEnv=True):
         print("Error executing application in CMSSW environment.\n\tSee stdout log")
     else:
         with open('cmsRun-stdout.log', 'w') as fh:
-            cmsrun_stdout = decodeBytesToUnicode(scram.getStdout())
+            cmsrun_stdout = scram.getStdout()
             fh.write(cmsrun_stdout)
     return ret
 
