@@ -32,22 +32,27 @@ except:  # pylint: disable=bare-except
 EnvironmentException = Exception
 
 
-def retriableError(ex):
+def retriableError(ex, userAgent=None):
     """ Return True if the error can be retried
     """
+    if userAgent in ('CRABTaskWorker', 'CRABPublisher'):
+        retriableErrors = [403, 429, 500, 502, 503]
+    else:
+        retriableErrors = [429, 500, 502, 503]
+
     if isinstance(ex, HTTPException):
         #429 Too Many Requests. When client hits the throttling limit
         #500 Internal sever error. For some errors retries it helps
         #502 CMSWEB frontend answers with this when the CMSWEB backends are overloaded
         #503 Usually that's the DatabaseUnavailable error
-        return ex.status in [429, 500, 502, 503]
+        return ex.status in retriableErrors
     if isinstance(ex, pycurl.error):
         #28 is 'Operation timed out...'
         #35,is 'Unknown SSL protocol error', see https://github.com/dmwm/CRABServer/issues/5102
         return ex.args[0] in [28, 35]
     return False
 
-def terminalError(ex):
+def terminalError(ex, userAgent=None):
     """
     Return True if HTTP server reported a clear "no way" which does
     not make sense to retry
@@ -59,8 +64,12 @@ def terminalError(ex):
     #401 Unauthorized (usually we do not get this but 403, but meaning is the same. Future proofing)
     #400 BadRequest (more generic refusal of this request by HTTP server)
     terminal = False
+    if userAgent in ('CRABTaskWorker', 'CRABPublisher'):
+        terminalErrors = [400, 401, 404, 405, 406]
+    else:
+        terminalErrors = [400, 401, 403, 404, 405, 406]
     if isinstance(ex, HTTPException) and \
-            ex.status in [400, 401, 403, 404, 405, 406]:
+            ex.status in terminalErrors:
         terminal = True
     return terminal
 
@@ -175,13 +184,13 @@ class HTTPRequests(dict):
                                                          ckey=self['key'], cert=self['cert'], capath=caCertPath,
                                                          verbose=self['verbose'])
             except Exception as ex:
-                if terminalError(ex):
+                if terminalError(ex, self["userAgent"]):
                     # HTTP went OK, but operation is definitely not possible
                     msg = "Rejected request when connecting to %s using %s. Error details: " % (url, data)
                     msg = msg + str(ex.headers) if hasattr(ex, 'headers') else msg + str(ex)
                     self.logger.error(msg)
                     raise
-                if (i < 2) or (retriableError(ex) and (i < self['retry'])):
+                if (i < 2) or (retriableError(ex, self["userAgent"]) and (i < self['retry'])):
                     sleeptime = 20 * (i + 1) + random.randint(-10, 10)
                     msg = "Sleeping %s seconds after HTTP error. Error details:  " % sleeptime
                     if hasattr(ex, 'headers'):
