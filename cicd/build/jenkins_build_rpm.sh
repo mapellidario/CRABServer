@@ -9,7 +9,7 @@ echo "(DEBUG)   \- RELEASE_TAG: $RELEASE_TAG"  # v3.211111, py3.220124
 echo "(DEBUG)   \- CRABSERVER_REPO: $CRABSERVER_REPO"  # dmwm, belforte, mapellidario, ...
 echo "(DEBUG)   \- WMCORE_REPO: $WMCORE_REPO"  # dmwm, belforte, mapellidario, ...
 echo "(DEBUG)   \- WMCORE_TAG: $WMCORE_TAG"  # <empty>, 1.5.7, ...
-# echo "(DEBUG)   \- BRANCH: $BRANCH" # (empty, not used)
+echo "(DEBUG)   \- BRANCH: $BRANCH" # <empty>, master, ...
 echo "(DEBUG)   \- PAYLOAD: $PAYLOAD"
 # example of PAYLOAD: https://dmapelli.web.cern.ch/public/crab/20220127/crabserver_github_release_payload_example.json
 echo "(DEBUG) end"
@@ -20,7 +20,11 @@ docker system prune -af
 #clone directories
 git clone -b V00-33-XX https://github.com/cms-sw/pkgtools.git
 git clone https://github.com/cms-sw/cmsdist.git && cd cmsdist && git checkout comp_gcc630
-git clone https://github.com/dmwm/CRABServer.git
+git clone https://github.com/$CRABSERVER_REPO/CRABServer.git
+
+cd CRABServer
+git checkout ${RELEASE_TAG}
+cd ..
 
 if [[ -n  ${PAYLOAD} ]]; then
    #get CRABServer branch name from the payload, if the payload is not empty
@@ -30,12 +34,10 @@ if [[ -n  ${PAYLOAD} ]]; then
    #paylod has a lot of information, but we are only interested in extracting this info: <...>"target_commitish": "python3"<...>
    #regex would extract 'python3' as a BRANCH name
    export BRANCH=$(echo "${PAYLOAD}" | grep -oP '(?<="target_commitish":\s")([^\s]+)(?=", ")')
+else 
+   export BRANCH=$(git branch --format="%(refname)" --contains tags/$RELEASE_TAG | awk -F "/" '{print $3}')
 fi
 echo "BRANCH=${BRANCH}" >> $WORKSPACE/properties_file
-
-cd CRABServer
-git checkout ${BRANCH}
-cd ..
 
 #select the WMCore tag
 if [ ${WMCORE_REPO} == "dmwm" ]; then
