@@ -59,6 +59,13 @@ echo "(DEBUG) env variables that could have been updated from the default:"
 echo "(DEBUG)   \- BRANCH (crabserver): $BRANCH"
 echo "(DEBUG)   \- WMCORE_TAG: $WMCORE_TAG"
 
+# eventually: exit if the input variables are not set.
+# exit if one of the required variables is not set
+if [[ -z $BRANCH ]]; then
+  echo '$BRANCH' "is empty, exiting"
+  exit 1 
+fi
+
 ##### All the required env variables are set at this point. Do not set any input below this line
 #update .spec files with new CRABServer and  WMCore tags; update from which branch RPMs should be built
 cp crabserver.spec crabserver.spec.bak 
