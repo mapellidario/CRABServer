@@ -41,7 +41,8 @@ else
    # when the payload is empty, it means that this job is launched manually.
    # in this case, we extract the branch name from the $RELEASE_TAG
    cd CRABServer
-   export BRANCH=$(git branch -a --contains tags/$RELEASE_TAG | tee $(tty) | sed "s/*//g" | sed "s/ //g" | grep origin | awk -F "/" '{print $3}')
+   git branch -a --contains tags/$RELEASE_TAG
+   export BRANCH=$(git branch -a --contains tags/$RELEASE_TAG | sed "s/*//g" | sed "s/ //g" | grep origin | awk -F "/" '{print $3}')
    cd ..
 fi
 echo "BRANCH=${BRANCH}" >> $WORKSPACE/properties_file
