@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 echo "(DEBUG) variables from upstream jenkin job (github-webhook):"
 # echo "(DEBUG)   \- REPOSITORY: $REPOSITORY" # (not used)
 # echo "(DEBUG)   \- EVENT: $EVENT" # (not used)
