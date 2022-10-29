@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 echo "(DEBUG) git version: " $(git --version)
 echo "(DEBUG) variables from upstream jenkin job (github-webhook):"
 # echo "(DEBUG)   \- REPOSITORY: $REPOSITORY" # (not used)
@@ -10,7 +12,6 @@ echo "(DEBUG)   \- RELEASE_TAG: $RELEASE_TAG"  # v3.211111, py3.220124
 echo "(DEBUG)   \- CRABSERVER_REPO: $CRABSERVER_REPO"  # dmwm, belforte, mapellidario, ...
 echo "(DEBUG)   \- WMCORE_REPO: $WMCORE_REPO"  # dmwm, belforte, mapellidario, ...
 echo "(DEBUG)   \- WMCORE_TAG: $WMCORE_TAG"  # <empty>, 1.5.7, ...
-echo "(DEBUG)   \- BRANCH: $BRANCH" # <empty>, master, ...
 echo "(DEBUG)   \- PAYLOAD: $PAYLOAD"
 # example of PAYLOAD: https://dmapelli.web.cern.ch/public/crab/20220127/crabserver_github_release_payload_example.json
 echo "(DEBUG) end"
@@ -29,7 +30,7 @@ git checkout ${RELEASE_TAG}
 cd ..
 
 if [[ -n  ${PAYLOAD} ]]; then
-   #get CRABServer branch name from the payload, if the payload is not empty
+   #if the payload is not empty, get CRABServer branch name from the payload. 
    #the payload is not empty when this job is triggered by github-webhook,
    #if this job is launched manually, then the branch will have the value set
    #as input env variable.
@@ -37,11 +38,16 @@ if [[ -n  ${PAYLOAD} ]]; then
    #regex would extract 'python3' as a BRANCH name
    export BRANCH=$(echo "${PAYLOAD}" | grep -oP '(?<="target_commitish":\s")([^\s]+)(?=", ")')
 else
+   # when the payload is empty, it means that this job is launched manually.
+   # in this case, we extract the branch name from the $RELEASE_TAG
    cd CRABServer
-   export BRANCH=$(git branch -a --contains tags/$RELEASE_TAG | sed "s/*//g" | sed "s/ //g" | grep origin | awk -F "/" '{print $3}')
+   export BRANCH=$(git branch -a --contains tags/$RELEASE_TAG | tee $(tty) | sed "s/*//g" | sed "s/ //g" | grep origin | awk -F "/" '{print $3}')
    cd ..
 fi
 echo "BRANCH=${BRANCH}" >> $WORKSPACE/properties_file
+# ACHTUNG!
+# $BRANCH can contain only alfanumeric characters and the underscore "_". for example, the dash "-" is not allowed
+# otherwise, cms-build will fail and no rpm will be uploaded to the repository.
 
 #select the WMCore tag
 if [ ${WMCORE_REPO} == "dmwm" ]; then
