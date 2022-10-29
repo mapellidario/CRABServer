@@ -16,9 +16,9 @@ echo "(DEBUG)   \- PAYLOAD: $PAYLOAD"
 # example of PAYLOAD: https://dmapelli.web.cern.ch/public/crab/20220127/crabserver_github_release_payload_example.json
 echo "(DEBUG) end"
 
-if [[ -z $RELEASE_TAG ]]; then echo '$RELEASE_TAG' "is empty, exiting"; exit 1 fi
-if [[ -z $CRABSERVER_REPO ]]; then echo '$CRABSERVER_REPO' "is empty, exiting"; exit 1 fi
-if [[ -z $WMCORE_REPO ]]; then echo '$WMCORE_REPO' "is empty, exiting"; exit 1 fi
+if [[ -z $RELEASE_TAG ]]; then echo '$RELEASE_TAG' "is empty, exiting"; exit 1; fi
+if [[ -z $CRABSERVER_REPO ]]; then echo '$CRABSERVER_REPO' "is empty, exiting"; exit 1; fi
+if [[ -z $WMCORE_REPO ]]; then echo '$WMCORE_REPO' "is empty, exiting"; exit 1; fi
 
 #do a clean up
 docker system prune -af
@@ -49,7 +49,7 @@ else
    export BRANCH=$(git branch -a --contains tags/$RELEASE_TAG | sed "s/*//g" | sed "s/ //g" | grep origin | awk -F "/" '{print $3}')
    cd ..
 fi
-if [[ -z $BRANCH ]]; then echo '$BRANCH' "is empty, exiting"; exit 1 fi
+if [[ -z $BRANCH ]]; then echo '$BRANCH' "is empty, exiting"; exit 1; fi
 echo "BRANCH=${BRANCH}" >> $WORKSPACE/properties_file
 # ACHTUNG!
 # $BRANCH can contain only alfanumeric characters and the underscore "_". for example, the dash "-" is not allowed
@@ -59,7 +59,7 @@ echo "BRANCH=${BRANCH}" >> $WORKSPACE/properties_file
 if [ ${WMCORE_REPO} == "dmwm" ]; then
    WMCORE_TAG=$(grep -oP "wmcver==\K.*" CRABServer/requirements.txt)
 fi
-if [[ -z $WMCORE_TAG ]]; then echo '$WMCORE_TAG' "is empty, exiting"; exit 1 fi
+if [[ -z $WMCORE_TAG ]]; then echo '$WMCORE_TAG' "is empty, exiting"; exit 1; fi
 
 
 echo "(DEBUG) env variables that could have been updated from the default:"
