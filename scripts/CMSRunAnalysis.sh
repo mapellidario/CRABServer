@@ -18,6 +18,18 @@ sigterm() {
   fi
 }
 
+dariodebug() {
+
+    set -x
+    echo "dariodebug"
+    echo "python3"
+    python3 -c 'import CMSRunAnalysis; print("dariodebug", CMSRunAnalysis.EC_MissingArg)'
+
+    echo "python"
+    python -c 'import CMSRunAnalysis; print("dariodebug", CMSRunAnalysis.EC_MissingArg)'
+    set +x
+}
+
 #
 echo "======== CMSRunAnalysis.sh STARTING at $(TZ=GMT date) ========"
 echo "Local time : $(date)"
@@ -90,6 +102,8 @@ if [ ! -e wmcore_initialized ];
 then
     echo "======== ERROR: Unable to initialize WMCore at $(TZ=GMT date) ========"
 fi
+
+dariodebug
 
 exit $jobrc
 
