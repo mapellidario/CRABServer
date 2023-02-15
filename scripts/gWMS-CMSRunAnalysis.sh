@@ -44,6 +44,18 @@ function chirp_exit_code {
     #and is successfully loaded. It is taken from the EXIT_STATUS variable
     #instead (which contains the short exit coce)
 
+    set -x
+    # .  $JOBSTARTDIR/startup_environment.sh
+    echo "path: " $PATH
+    echo "pythonpath: " $PYTHONPATH
+    ls -R /srv/.gwms.d/bin
+    /srv/.gwms.d/bin/gwms-python --version
+    file /srv/.gwms.d/bin/gwms-python
+    command -v condor_chirp
+    # cat $(command -v condor_chirp)
+    /srv/.gwms.d/bin/gwms-python -c "import htchirp; print(htchirp.__file__)"
+    set +x
+
     #check if the command condor_chirp exists
     command -v condor_chirp > /dev/null 2>&1
     if [ $? -ne 0 ]; then
