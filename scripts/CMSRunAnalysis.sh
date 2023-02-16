@@ -23,10 +23,10 @@ dariodebug() {
     set -x
     echo "dariodebug"
     echo "python3"
-    python3 -c "import CMSRunAnalysis; print("dariodebug", CMSRunAnalysis.EC_MissingArg)"
+    python3 -c 'import CMSRunAnalysis; print("dariodebug", CMSRunAnalysis.EC_MissingArg)'
 
     echo "python"
-    python -c "import CMSRunAnalysis; print("dariodebug", CMSRunAnalysis.EC_MissingArg)"
+    python -c 'import CMSRunAnalysis; print("dariodebug", CMSRunAnalysis.EC_MissingArg)'
     set +x
 }
 
