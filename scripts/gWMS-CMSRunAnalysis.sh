@@ -47,12 +47,18 @@ function chirp_exit_code {
     # .  $JOBSTARTDIR/startup_environment.sh
     echo "path: " $PATH
     echo "pythonpath: " $PYTHONPATH
+    file $(command -v python)
+    python --version
+    file $(command -v python2)
+    python2 --version
+    file $(command -v python3)
+    python3 --version
     ls -R /srv/.gwms.d/bin
-    /srv/.gwms.d/bin/gwms-python --version
-    file /srv/.gwms.d/bin/gwms-python
-    command -v condor_chirp
-    # cat $(command -v condor_chirp)
-    /srv/.gwms.d/bin/gwms-python -c "import htchirp; print(htchirp.__file__)"
+    echo $(command -v gwms-python)
+    file $(command -v gwms-python)
+    gwms-python --version
+    file $(command -v condor_chirp)
+    gwms-python -c "import htchirp; print(htchirp.__file__)"
     set +x
 
     #check if the command condor_chirp exists
