@@ -1,6 +1,6 @@
 #!/bin/bash
 
-save_env() {
+save_startup_env() {
     # save the current environment to the file startup_environment.sh 
     # this is intended to be the first function run by 
     # - gWMS-CMSRunAnalysis.sh: when running a job on the global pool
@@ -20,6 +20,11 @@ save_env() {
 
     declare -p > startup_environment.sh
 
+}
+
+load_startup_env() {
+    # load the startup environment, as it is saved at the beginning of the job.
+    .  $JOBSTARTDIR/startup_environment.sh
 }
 
 setup_local_env () {

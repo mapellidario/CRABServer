@@ -13,7 +13,7 @@ echo "======== Startup environment - STARTING ========"
 source ./submit_env.sh
 
 # from ./submit_env.sh
-save_env
+save_startup_env
 
 echo "======== Startup environment - FINISHING ========"
 
@@ -45,6 +45,10 @@ function chirp_exit_code {
     #instead (which contains the short exit coce)
 
     echo "======== Figuring out long exit code of the job for condor_chirp at $(TZ=GMT date)========"
+
+    # from ./submit_env.sh
+    load_startup_env
+
     #check if the command condor_chirp exists
     command -v condor_chirp > /dev/null 2>&1
     if [ $? -ne 0 ]; then
