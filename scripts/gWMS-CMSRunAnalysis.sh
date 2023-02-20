@@ -65,7 +65,6 @@ function chirp_exit_code {
     gwms-python --version
     file $(command -v condor_chirp)
     gwms-python -c "import htchirp; print(htchirp.__file__)"
-    set +x
 
     #check if the command condor_chirp exists
     command -v condor_chirp > /dev/null 2>&1
@@ -110,6 +109,8 @@ function chirp_exit_code {
     else 
         echo "there is nothing to read: $CMSSWOUTFILE does not exist"
     fi
+
+    set +x
 }
 
 echo "======== gWMS-CMSRunAnalysis.sh STARTING at $(TZ=GMT date) on $(hostname) ========"
