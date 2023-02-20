@@ -53,14 +53,9 @@ function chirp_exit_code {
     fi
     #check if exitCode is in there and report it
     #any error or exception will be printed to stderr and cause $? <> 0
-    LONG_EXIT_CODE=$(python << END
-from __future__ import print_function
-import json
-with open("jobReport.json.$CRAB_Id") as fd:
-    data = json.load(fd)
-print(data['exitCode'])
-END
-)
+    # - grep -o: it only prints the matched string, not the full line
+    # - xargs is used to trim the string, removing extra spaces
+    LONG_EXIT_CODE=$(grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs)
     if [ $? -eq 0 ]; then
         echo "==== Long exit code of the job is $LONG_EXIT_CODE ===="
         condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_ExitCode $LONG_EXIT_CODE
@@ -79,6 +74,20 @@ END
         fi
     fi
     echo "======== Finished condor_chirp -ing the exit code of the job. Exit code of condor_chirp: $CHIRP_EC ========"
+
+    CMSSWOUTFILE=cmsRun-stdout.log
+    echo "======== dariodebug: Check content of $CMSSWOUTFILE ========"
+    if [[ -e jobReport.json.$CRAB_Id ]]; then
+      echo "the file jobReport.json.$CRAB_Id exists"
+    else
+        echo "the file jobReport.json.$CRAB_Id exists"
+    fi
+    if [[ -e $CMSSWOUTFILE ]]; then
+        echo "the file $CMSSWOUTFILE exists:"
+        head $CMSSWOUTFILE
+    else 
+        echo "there is nothing to read: $CMSSWOUTFILE does not exist"
+    fi
 }
 
 echo "======== gWMS-CMSRunAnalysis.sh STARTING at $(TZ=GMT date) on $(hostname) ========"
