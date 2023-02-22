@@ -94,6 +94,8 @@ function chirp_exit_code {
     fi
 }
 
+condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_Phase bootstrap
+
 echo "======== gWMS-CMSRunAnalysis.sh STARTING at $(TZ=GMT date) on $(hostname) ========"
 echo "User id:    $(id)"
 echo "Local time: $(date)"
@@ -148,6 +150,7 @@ voms-proxy-info -all
 echo "======== PROXY INFORMATION FINISH at $(TZ=GMT date) ========"
 
 echo "======== CMSRunAnalysis.sh at $(TZ=GMT date) STARTING ========"
+condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_Phase running
 time sh ./CMSRunAnalysis.sh "$@" --oneEventMode=$CRAB_oneEventMode
 EXIT_STATUS=$?
 echo "CMSRunAnalysis.sh complete at $(TZ=GMT date) with (short) exit status $EXIT_STATUS"
@@ -196,6 +199,7 @@ fi
 echo "======== Stageout at $(TZ=GMT date) FINISHING (short status $STAGEOUT_EXIT_STATUS) ========"
 
 echo "======== gWMS-CMSRunAnalysis.sh FINISHING at $(TZ=GMT date) on $(hostname) with (short) status $EXIT_STATUS ========"
+condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_Phase finished
 echo "Local time: $(date)"
 #set -x
 echo "Short exit status: $EXIT_STATUS"
