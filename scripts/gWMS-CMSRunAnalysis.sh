@@ -181,7 +181,7 @@ fi
 
 echo "======== User application running completed. Prepare env. for stageout ==="
 rm -f wmcore_initialized
-time sh ./cmspy.sh
+time sh ./cmscp.sh
 STAGEOUT_EXIT_STATUS=$?
 
 if [ ! -e wmcore_initialized ];
