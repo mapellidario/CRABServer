@@ -59,6 +59,11 @@ function chirp_exit_code {
     #any error or exception will be printed to stderr and cause $? <> 0
     # - grep -o: it only prints the matched string, not the full line
     # - xargs is used to trim the string, removing extra spaces
+
+    grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id 
+    grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}'
+    grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs
+
     LONG_EXIT_CODE=$(grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs)
     if [ $? -eq 0 ]; then
         echo "==== Long exit code of the job is $LONG_EXIT_CODE ===="
@@ -88,13 +93,11 @@ function chirp_exit_code {
     fi
     if [[ -e $CMSSWOUTFILE ]]; then
         echo "the file $CMSSWOUTFILE exists:"
-        head $CMSSWOUTFILE
+        head $CMSSWOUTFILE | while read line; do echo "[$CMSSWOUTFILE] $line"; done
     else 
         echo "there is nothing to read: $CMSSWOUTFILE does not exist"
     fi
 }
-
-condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_Phase bootstrap
 
 echo "======== gWMS-CMSRunAnalysis.sh STARTING at $(TZ=GMT date) on $(hostname) ========"
 echo "User id:    $(id)"
@@ -102,6 +105,13 @@ echo "Local time: $(date)"
 echo "Hostname:   $(hostname -f)"
 echo "System:     $(uname -a)"
 echo "Arguments are $@"
+
+# In the future, we could use condor_chirp to add a classad which records which
+# is the current status of a job. 
+# For example, we could set "bootstrap", "running", "stageout", "finished"
+# We do not do it because we currently have no use for it.
+#echo "======== Attempting to notify HTCondor of job bootstrap ========"
+#condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_Phase bootstrap
 
 # redirect stderr to stdout, so that it all goes to job_out.*, leaving job_err.* empty
 # see https://stackoverflow.com/a/13088401
@@ -150,7 +160,6 @@ voms-proxy-info -all
 echo "======== PROXY INFORMATION FINISH at $(TZ=GMT date) ========"
 
 echo "======== CMSRunAnalysis.sh at $(TZ=GMT date) STARTING ========"
-condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_Phase running
 time sh ./CMSRunAnalysis.sh "$@" --oneEventMode=$CRAB_oneEventMode
 EXIT_STATUS=$?
 echo "CMSRunAnalysis.sh complete at $(TZ=GMT date) with (short) exit status $EXIT_STATUS"
@@ -199,7 +208,6 @@ fi
 echo "======== Stageout at $(TZ=GMT date) FINISHING (short status $STAGEOUT_EXIT_STATUS) ========"
 
 echo "======== gWMS-CMSRunAnalysis.sh FINISHING at $(TZ=GMT date) on $(hostname) with (short) status $EXIT_STATUS ========"
-condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_Phase finished
 echo "Local time: $(date)"
 #set -x
 echo "Short exit status: $EXIT_STATUS"

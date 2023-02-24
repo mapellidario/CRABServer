@@ -10,10 +10,6 @@ setup_cmsset
 # from ./submit_env.sh
 setup_python_comp
 
-#echo "======== Attempting to notify HTCondor of file stageout ========"
-# wrong syntax for chirping, also needs a proper classAd name. Keep commented line for a future fix
-#condor_chirp phase output
-
 echo "======== Stageout at $(TZ=GMT date) STARTING ========"
 # Note we prevent buffering of stdout/err -- this is due to observed issues in mixing of out/err for stageout plugins
 PYTHONUNBUFFERED=1 $pythonCommand cmscp.py
