@@ -101,7 +101,7 @@ function parse_cmsrun {
     echo "======== dariodebug: Check content of $CMSSWOUTFILE ========"
     if [[ -e jobReport.json.$CRAB_Id ]]; then
         echo "the file jobReport.json.$CRAB_Id exists:"
-        cat jobReport.json.$CRAB_Id | while read line; do echo "[jobReport.json.$CRAB_Id] $line"; done
+        cat jobReport.json.$CRAB_Id
     else
         echo "the file jobReport.json.$CRAB_Id does **NOT** exists"
     fi
