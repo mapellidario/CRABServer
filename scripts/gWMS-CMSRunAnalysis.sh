@@ -6,6 +6,13 @@
 # difficult-to-impossible to run.
 #
 
+#
+# We decided that it is cleaner if we do not change the environment in this script
+# If a command needs a different environment, just call it in a subprocess with `time sh script.sh`
+# as we do already for CMSRunAnalysis.sh and cmspy.sh
+# It should not be needed, but in case something goes wrong and you need 
+# 
+
 echo "======== Startup environment - STARTING ========"
 
 # import some auxiliary functions from a script that is intented to be shared
@@ -47,11 +54,6 @@ function chirp_exit_code {
 
     echo "======== Figuring out long exit code of the job for condor_chirp at $(TZ=GMT date)========"
 
-    # from ./submit_env.sh
-    # load_startup_env
-
-    set | grep -i path
-
     #check if the command condor_chirp exists
     command -v condor_chirp > /dev/null 2>&1
     if [ $? -ne 0 ]; then
@@ -63,9 +65,11 @@ function chirp_exit_code {
     # - grep -o: it only prints the matched string, not the full line
     # - xargs is used to trim the string, removing extra spaces
 
+    echo "dmdebug - chirp exit code start"
     grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id 
     grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}'
     grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs
+    echo "dmdebug - chirp exit code end"
 
     LONG_EXIT_CODE=$(grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs)
     if [ $? -eq 0 ]; then
@@ -96,8 +100,8 @@ function parse_cmsrun {
     CMSSWOUTFILE=cmsRun-stdout.log
     echo "======== dariodebug: Check content of $CMSSWOUTFILE ========"
     if [[ -e jobReport.json.$CRAB_Id ]]; then
-        echo "the file jobReport.json.$CRAB_Id exists"
-        head jobReport.json.$CRAB_Id | while read line; do echo "[jobReport.json.$CRAB_Id] $line"; done
+        echo "the file jobReport.json.$CRAB_Id exists:"
+        cat jobReport.json.$CRAB_Id | while read line; do echo "[jobReport.json.$CRAB_Id] $line"; done
     else
         echo "the file jobReport.json.$CRAB_Id does **NOT** exists"
     fi
