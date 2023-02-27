@@ -22,6 +22,7 @@ echo "======== Startup environment - FINISHING ========"
 START_TIME=$(date +%s)
 function finish {
   chirp_exit_code
+  parse_cmsrun
   END_TIME=$(date +%s)
   DIFF_TIME=$((END_TIME-START_TIME))
   echo "Job Running time in seconds: " $DIFF_TIME
@@ -47,7 +48,9 @@ function chirp_exit_code {
     echo "======== Figuring out long exit code of the job for condor_chirp at $(TZ=GMT date)========"
 
     # from ./submit_env.sh
-    load_startup_env
+    # load_startup_env
+
+    set | grep -i path
 
     #check if the command condor_chirp exists
     command -v condor_chirp > /dev/null 2>&1
@@ -84,19 +87,29 @@ function chirp_exit_code {
     fi
     echo "======== Finished condor_chirp -ing the exit code of the job. Exit code of condor_chirp: $CHIRP_EC ========"
 
+}
+
+function parse_cmsrun {
+
+    echo "======== Parsing output of cmsRun at $(TZ=GMT date)========"
+
     CMSSWOUTFILE=cmsRun-stdout.log
     echo "======== dariodebug: Check content of $CMSSWOUTFILE ========"
     if [[ -e jobReport.json.$CRAB_Id ]]; then
-      echo "the file jobReport.json.$CRAB_Id exists"
-    else
         echo "the file jobReport.json.$CRAB_Id exists"
+        head jobReport.json.$CRAB_Id | while read line; do echo "[jobReport.json.$CRAB_Id] $line"; done
+    else
+        echo "the file jobReport.json.$CRAB_Id does **NOT** exists"
     fi
     if [[ -e $CMSSWOUTFILE ]]; then
         echo "the file $CMSSWOUTFILE exists:"
         head $CMSSWOUTFILE | while read line; do echo "[$CMSSWOUTFILE] $line"; done
     else 
-        echo "there is nothing to read: $CMSSWOUTFILE does not exist"
+        echo "there is nothing to read: $CMSSWOUTFILE does **NOT** exist"
     fi
+
+    echo "======== Finished - Parsing output of cmsRun at $(TZ=GMT date)========"
+
 }
 
 echo "======== gWMS-CMSRunAnalysis.sh STARTING at $(TZ=GMT date) on $(hostname) ========"
