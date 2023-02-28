@@ -102,6 +102,7 @@ function parse_cmsrun {
     if [[ -e jobReport.json.$CRAB_Id ]]; then
         echo "the file jobReport.json.$CRAB_Id exists:"
         cat jobReport.json.$CRAB_Id
+        echo
     else
         echo "the file jobReport.json.$CRAB_Id does **NOT** exists"
     fi
