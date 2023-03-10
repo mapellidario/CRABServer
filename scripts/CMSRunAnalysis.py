@@ -426,14 +426,14 @@ def getProv(filename, scram):
     output = scram.getStdout()
     return output
 
-def executeUserApplication(command, scram, cleanEnv=True):
+def executeUserApplication(command, scram, cleanEnv=True, logFilename=None):
     """
     cmsRun failures will appear in FJR but do not raise exceptions
     exception can only be raised by unexpected failures of the Scram wrapper itself
     Scram() never raises and returns the exit code from executing 'command'
     """
     with tempSetLogLevel(logger=logging.getLogger(), level=logging.DEBUG):
-        ret = scram(command, runtimeDir=os.getcwd(), cleanEnv=cleanEnv)
+        ret = scram(command, runtimeDir=os.getcwd(), cleanEnv=cleanEnv, logFilename=logFilename)
     if ret > 0:
         with open('cmsRun-stdout.log', 'w') as fh:
             fh.write(scram.diagnostic())
@@ -621,7 +621,7 @@ if __name__ == "__main__":
         command = 'sh %s' % tweakingScriptName
         print('Executing %s in Scram env' % command)
         with tempSetLogLevel(logger=logging.getLogger(), level=logging.ERROR):
-            ret = scram(command, runtimeDir=os.getcwd())
+            ret = scram(command, runtimeDir=os.getcwd(), logFilename="tweakThePset-stdout.txt")
         if ret > 0:
             msg = 'Error executing %s\n\tScram Diagnostic %s' % (tweakingScriptName, scram.diagnostic())
             handleException("FAILED", EC_CMSRunWrapper, msg)
@@ -644,7 +644,7 @@ if __name__ == "__main__":
             cmd = os.getcwd() + "/%s %s %s" %\
                   (options.scriptExe, options.jobNumber, " ".join(json.loads(options.scriptArgs)))
 
-        applicationExitCode = executeUserApplication(cmd, scram, cleanEnv=False)
+        applicationExitCode = executeUserApplication(cmd, scram, cleanEnv=False, logFilename='cmsRun-stdout-streaming.log')
         if applicationExitCode:
             print("==== Execution FAILED at %s ====" % time.asctime(time.gmtime()))
         print("==== %s Execution completed at %s ====" % (applicationName, time.asctime(time.gmtime())))
