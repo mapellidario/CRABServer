@@ -66,12 +66,12 @@ function chirp_exit_code {
     # - xargs is used to trim the string, removing extra spaces
 
     echo "dmdebug - chirp exit code start"
-    grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id 
-    grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}'
-    grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs
+    grep -o '"jobExitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id 
+    grep -o '"jobExitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}'
+    grep -o '"jobExitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs
     echo "dmdebug - chirp exit code end"
 
-    LONG_EXIT_CODE=$(grep -o '"exitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs)
+    LONG_EXIT_CODE=$(grep -o '"jobExitCode":[ ]*[0-9]*' jobReport.json.$CRAB_Id | awk -F':' '{print $2}' | xargs)
     if [ $? -eq 0 ]; then
         echo "==== Long exit code of the job is $LONG_EXIT_CODE ===="
         condor_chirp set_job_attr_delayed Chirp_CRAB3_Job_ExitCode $LONG_EXIT_CODE
@@ -99,9 +99,18 @@ function parse_cmsrun {
 
     CMSSWOUTFILE=cmsRun-stdout.log
     echo "======== dariodebug: Check content of $CMSSWOUTFILE ========"
+    DEBUGJSONEXIST=False
     if [[ -e jobReport.json.$CRAB_Id ]]; then
         echo "the file jobReport.json.$CRAB_Id exists:"
         cat jobReport.json.$CRAB_Id
+        echo
+        DEBUGJSONEXIST=True
+    else
+        echo "the file jobReport.json.$CRAB_Id does **NOT** exists"
+    fi
+    if [[ -e FrameworkJobReport.xml ]]; then
+        echo "the file FrameworkJobReport.xml exists:"
+        cat FrameworkJobReport.xml
         echo
     else
         echo "the file jobReport.json.$CRAB_Id does **NOT** exists"
@@ -110,7 +119,7 @@ function parse_cmsrun {
         echo "the file $CMSSWOUTFILE exists:"
         head $CMSSWOUTFILE | while read line; do echo "[$CMSSWOUTFILE] $line"; done
     else 
-        echo "there is nothing to read: $CMSSWOUTFILE does **NOT** exist"
+        echo "the file $CMSSWOUTFILE does **NOT** exist"
     fi
 
     echo "======== Finished - Parsing output of cmsRun at $(TZ=GMT date)========"
