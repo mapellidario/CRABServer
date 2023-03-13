@@ -26,8 +26,20 @@ echo "Current processor: $(cat /proc/cpuinfo |grep name|sort|uniq)"
 
 source ./submit_env.sh
 
+echo "======== Current environment dump STARTING ========"
+for i in `env`; do
+  echo "== ENV10: $i"
+done
+echo "======== Current environment dump FINISHING ========"
+
 # from ./submit_env.sh
 setup_cmsset
+
+echo "======== Current environment dump STARTING ========"
+for i in `env`; do
+  echo "== ENV11: $i"
+done
+echo "======== Current environment dump FINISHING ========"
 
 # from ./submit_env.sh
 setup_python_comp
@@ -37,7 +49,7 @@ export HOME=${HOME:-$PWD}
 
 echo "======== Current environment dump STARTING ========"
 for i in `env`; do
-  echo "== ENV: $i"
+  echo "== ENV12: $i"
 done
 echo "======== Current environment dump FINISHING ========"
 

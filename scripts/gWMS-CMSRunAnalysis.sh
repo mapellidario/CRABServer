@@ -15,6 +15,12 @@
 
 echo "======== Startup environment - STARTING ========"
 
+echo "======== Current environment dump STARTING ========"
+for i in `env`; do
+  echo "== ENV1: $i"
+done
+echo "======== Current environment dump FINISHING ========"
+
 # import some auxiliary functions from a script that is intented to be shared
 # with WMCore
 source ./submit_env.sh
@@ -186,6 +192,12 @@ echo "======== PROXY INFORMATION START at $(TZ=GMT date) ========"
 voms-proxy-info -all
 echo "======== PROXY INFORMATION FINISH at $(TZ=GMT date) ========"
 
+echo "======== Current environment dump STARTING ========"
+for i in `env`; do
+  echo "== ENV2: $i"
+done
+echo "======== Current environment dump FINISHING ========"
+
 echo "======== CMSRunAnalysis.sh at $(TZ=GMT date) STARTING ========"
 time sh ./CMSRunAnalysis.sh "$@" --oneEventMode=$CRAB_oneEventMode
 EXIT_STATUS=$?
@@ -214,6 +226,12 @@ then
   echo "Short exit status: $EXIT_STATUS"
   exit $EXIT_STATUS
 fi
+
+echo "======== Current environment dump STARTING ========"
+for i in `env`; do
+  echo "== ENV3: $i"
+done
+echo "======== Current environment dump FINISHING ========"
 
 echo "======== User application running completed. Prepare env. for stageout ==="
 rm -f wmcore_initialized
