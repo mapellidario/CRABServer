@@ -13,7 +13,7 @@ echo "======== Startup environment - STARTING ========"
 source ./submit_env.sh
 
 # from ./submit_env.sh
-save_env
+save_startup_env
 
 echo "======== Startup environment - FINISHING ========"
 
