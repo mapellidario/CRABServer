@@ -260,6 +260,8 @@ def handleException(exitAcronym, exitCode, exitMsg):
 
     with open('jobReport.json', 'w') as rf:
         json.dump(report, rf)
+    with open('jobReport.exitCode.txt', 'w') as rf:
+        rf.write(str(report['exitCode']))
 
 def parseArgs():
     parser = PassThroughOptionParser()
@@ -679,6 +681,8 @@ if __name__ == "__main__":
                 rep['jobExitCode'] = jobExitCode
                 with open('jobReport.json', 'w') as of:
                     json.dump(rep, of)
+                with open('jobReport.exitCode.txt', 'w') as rf:
+                    rf.write(str(rep['jobExitCode']))
             except Exception:
                 print("WARNING: Failure when trying to parse FJR XML after job failure.")
 
@@ -763,6 +767,8 @@ if __name__ == "__main__":
         print("== Execution site from site-local-config.xml: %s" % slCfg.siteName)
         with open('jobReport.json', 'w') as of:
             json.dump(rep, of)
+        with open('jobReport.exitCode.txt', 'w') as rf:
+            rf.write(str(rep['exitCode']))
         with open('jobReportExtract.pickle', 'wb') as of:
             pickle.dump(rep, of)
         print("==== Report file creation FINISHED at %s ====" % time.asctime(time.gmtime()))
