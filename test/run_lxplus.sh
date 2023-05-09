@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# run CRAB integration tests on lxplus
-# rm -rf ./*
-# wget https://raw.githubusercontent.com/mapellidario/CRABServer/20230509_jenkins/test/run_lxplus.sh
-# bash ./run_lxplus.sh
+# run CRAB integration tests on lxplu
+# laptop$ rsync -rv test/run_lxplus.sh lxplus:/afs/cern.ch/user/d/dmapelli/crab/test/202305-crabtest
+# lxplus$ rm -rf ./*
+# lxplus$ bash ./run_lxplus.sh
 
 set -x
+set -e
 
 #00. set parameters
-
 
 CRABClient_version=dev
 CRABServer_tag=HEAD
@@ -19,13 +19,18 @@ Client_Configuration_Validation=No
 Task_Submission_Status_Tracking=true
 Check_Publication_Status=No
 Repo_GH_Issue=mapellidario/CRABServer
-Repo_Testing_Scripts=dmwm/CRABServer
-Branch_Testing_Scripts=master
+Repo_Testing_Scripts=mapellidario/CRABServer
+Branch_Testing_Scripts=20230509_jenkins
 Test_Docker_Image=registry.cern.ch/cmscrab/crabtesting:220701
-Test_WorkDir=/tmp/dmapelli/202305-crabtest
+export Test_WorkDir=/tmp/dmapelli/202305-crabtest
 
 # only when running on lxplus
 export WORKSPACE=/tmp/dmapelli/$(date +%s)-crabtest
+
+mkdir $Test_WorkDir
+mkdir $WORKSPACE
+cd $WORKSPACE
+touch $WORKSPACE/parameters
 
 #01. check parameters
 echo "(DEBUG) client:"
@@ -49,13 +54,14 @@ echo "(DEBUG) end"
 
 #02. Prepare environment
 rm -rf ${Test_WorkDir}
-docker system prune -af
+# docker system prune -af
 mkdir artifacts
 touch message_taskSubmitted 
 ls -l /cvmfs/cms-ib.cern.ch/latest/ 2>&1
 ls -l /cvmfs/cms.cern.ch/common/ 2>&1
 
-git clone https://github.com/cms-sw/cms-bot 
+## no GH
+# git clone https://github.com/cms-sw/cms-bot $WORKSPACE/cms-bot
 
 voms-proxy-init -rfc -voms cms -valid 192:00
 export PROXY=$(voms-proxy-info -path 2>&1)
@@ -109,7 +115,9 @@ fi
 
 echo -e "Started at: `(date '+%Y-%m-%d %H:%M:%S')`\nLink to the [job](${BUILD_URL}) " >> message_configuration
 issueTitle="#${BUILD_NUMBER}: Test ${CRABClient_version} CRABClient using ${REST_Instance} REST instance and ${CMSSW_release} CMSSW release"
-$WORKSPACE/cms-bot/create-gh-issue.py -r $Repo_GH_Issue -t "$issueTitle" -R message_configuration
+
+## no GH
+# $WORKSPACE/cms-bot/create-gh-issue.py -r $Repo_GH_Issue -t "$issueTitle" -R message_configuration
 
 
 #pass issueTitle to sub-jobs
@@ -160,7 +168,9 @@ else
 fi
 
 sleep 20
-$WORKSPACE/cms-bot/create-gh-issue.py -r $Repo_GH_Issue -t "$issueTitle" -R message_taskSubmitted
+
+## no GH
+# $WORKSPACE/cms-bot/create-gh-issue.py -r $Repo_GH_Issue -t "$issueTitle" -R message_taskSubmitted
 
 if $ERR ; then
 	exit 1

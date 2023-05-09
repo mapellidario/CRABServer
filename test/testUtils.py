@@ -86,7 +86,7 @@ config = Configuration()
 
 config.section_('General')
 config.General.instance = 'REST_Instance'
-config.General.workArea = '/tmp/crabTestConfig'
+config.General.workArea = os.getenv('Test_WorkDir','/tmp/crabTestConfig')
 config.General.requestName = REQUESTNAME
 
 config.section_('JobType')

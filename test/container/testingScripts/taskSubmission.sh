@@ -7,6 +7,8 @@
 #Variabiles ${REST_Instance}, ${Client_Validation_Suite}, ${Client_Configuration_Validation} and ${Task_Submission_Status_Tracking} comes from
 #Jenkins job CRABServer_ExecuteTests configuration.
 
+set -x
+
 source setupCRABClient.sh
 
 submitTasks(){
@@ -51,12 +53,12 @@ immediateCheck(){
 #Run immediate check on tasks submitted for Client_Configuration_Validation testing
 #Save results to failed_tests and successful_tests files
 
-  project_dir="/tmp/crabTestConfig"
+#   project_dir="/tmp/crabTestConfig"
   for task in ${tasksToCheck};
   do
       echo -e "\nRunning immediate test on task: ${task}"
       test_to_execute=`echo "${task}" | grep -oP '(?<=_crab_).*(?=)'`
-      task_dir=${project_dir}/crab_${test_to_execute}
+      task_dir=${Test_WorkDir}/crab_${test_to_execute}
       bash -x ${test_to_execute}-testSubmit.sh ${task_dir} && \
         echo ${test_to_execute}-testSubmit.sh ${task_dir} - $? >> ${WORK_DIR}/artifacts/successful_tests || \
         echo ${test_to_execute}-testSubmit.sh ${task_dir} - $? >> ${WORK_DIR}/artifacts/failed_tests
