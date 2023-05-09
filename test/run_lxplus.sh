@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # run CRAB integration tests on lxplus
+# rm -rf ./*
+# wget https://raw.githubusercontent.com/mapellidario/CRABServer/20230509_jenkins/test/run_lxplus.sh
+# bash ./run_lxplus.sh
 
 set -x
 
@@ -21,6 +24,8 @@ Branch_Testing_Scripts=master
 Test_Docker_Image=registry.cern.ch/cmscrab/crabtesting:220701
 Test_WorkDir=/tmp/dmapelli/202305-crabtest
 
+# only when running on lxplus
+export WORKSPACE=/tmp/dmapelli/$(date +%s)-crabtest
 
 #01. check parameters
 echo "(DEBUG) client:"
@@ -60,7 +65,6 @@ export ERR=false
 #be aware that when running in singularity, we use ${WORK_DIR} set below,
 #while if we run in CRAB Docker container, then ${WORK_DIR} set in Dockerfile.
 export WORK_DIR=`pwd`
-
 
 #1.1. Get configuration from CMSSW_release
 export CMSSW_release=${CMSSW_release}
