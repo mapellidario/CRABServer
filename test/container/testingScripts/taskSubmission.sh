@@ -11,6 +11,8 @@ set -x
 
 source setupCRABClient.sh
 
+declare -p
+
 submitTasks(){
 #Submit tasks and based on the exit code add task name / file name respectively to submitted_tasks or failed_tasks file
 
@@ -53,7 +55,6 @@ immediateCheck(){
 #Run immediate check on tasks submitted for Client_Configuration_Validation testing
 #Save results to failed_tests and successful_tests files
 
-#   project_dir="/tmp/crabTestConfig"
   for task in ${tasksToCheck};
   do
       echo -e "\nRunning immediate test on task: ${task}"
