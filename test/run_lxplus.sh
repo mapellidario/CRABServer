@@ -10,18 +10,18 @@ set -e
 
 #00. set parameters
 
-CRABClient_version=dev
-CRABServer_tag=HEAD
-REST_Instance=preprod
-CMSSW_release=CMSSW_13_0_2
-Client_Validation_Suite=No
-Client_Configuration_Validation=No
-Task_Submission_Status_Tracking=true
-Check_Publication_Status=No
-Repo_GH_Issue=mapellidario/CRABServer
-Repo_Testing_Scripts=mapellidario/CRABServer
-Branch_Testing_Scripts=20230509_jenkins
-Test_Docker_Image=registry.cern.ch/cmscrab/crabtesting:220701
+export CRABClient_version=dev
+export CRABServer_tag=HEAD
+export REST_Instance=preprod
+export CMSSW_release=CMSSW_13_0_2
+export Client_Validation_Suite=No
+export Client_Configuration_Validation=No
+export Task_Submission_Status_Tracking=true
+export Check_Publication_Status=No
+export Repo_GH_Issue=mapellidario/CRABServer
+export Repo_Testing_Scripts=mapellidario/CRABServer
+export Branch_Testing_Scripts=20230509_jenkins
+export Test_Docker_Image=registry.cern.ch/cmscrab/crabtesting:220701
 export Test_WorkDir=/tmp/dmapelli/202305-crabtest
 
 # only when running on lxplus
