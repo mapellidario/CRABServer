@@ -9,7 +9,7 @@ config.section_("General")
 config.General.transferOutputs = True
 config.General.transferLogs = True
 config.General.instance = os.getenv('REST_Instance','test2')
-config.General.workArea = os.join.path(os.getenv('Test_WorkDir','/tmp'), 'crabClientValidation')
+config.General.workArea = os.path.join(os.getenv('Test_WorkDir','/tmp'), 'crabClientValidation')
 
 config.section_("JobType")
 config.JobType.allowUndistributedCMSSW = True

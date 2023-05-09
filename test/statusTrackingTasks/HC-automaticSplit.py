@@ -9,7 +9,7 @@ config.section_("General")
 config.General.instance = os.getenv('REST_Instance','test2')
 config.General.restHost = ''
 config.General.dbInstance = ''
-config.General.workArea = os.join.path(os.getenv('Test_WorkDir','/tmp'), 'crabStatusTracking')
+config.General.workArea = os.path.join(os.getenv('Test_WorkDir','/tmp'), 'crabStatusTracking')
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
