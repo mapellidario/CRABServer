@@ -13,19 +13,23 @@ echo "(DEBUG)   \- CRABSERVER_REPO: $CRABSERVER_REPO"  # dmwm, belforte, mapelli
 echo "(DEBUG)   \- WMCORE_REPO: $WMCORE_REPO"  # dmwm, belforte, mapellidario, ...
 echo "(DEBUG)   \- WMCORE_TAG: $WMCORE_TAG"  # <empty>, 1.5.7, ...
 echo "(DEBUG)   \- BRANCH: $BRANCH" # <empty>, master, ...
+echo "(DEBUG)   \- CMSDIST_REPO: $CMSDIST_REPO"  # <empty> (defaults to cms-sw), belforte, mapellidario, ...
+echo "(DEBUG)   \- CMSDIST_BRANCH: $CMSDIST_BRANCH"  # <empty> (defaults to comp_gcc630), ...
 echo "(DEBUG)   \- PAYLOAD: $PAYLOAD"
 # example of PAYLOAD: https://dmapelli.web.cern.ch/public/crab/20220127/crabserver_github_release_payload_example.json
 echo "(DEBUG) end"
 
 if [[ -z $CRABSERVER_REPO ]]; then echo '$CRABSERVER_REPO' "is empty, exiting"; exit 1; fi
 if [[ -z $WMCORE_REPO ]]; then echo '$WMCORE_REPO' "is empty, exiting"; exit 1; fi
+if [[ -z $CMSDIST_REPO ]]; then export CMSDIST_REPO=cms-sw ; fi
+if [[ -z $CMSDIST_BRANCH ]]; then export CMSDIST_BRANCH=comp_gcc630 fi
 
 #do a clean up
 docker system prune -af
 
 #clone directories
 git clone -b V00-33-XX https://github.com/cms-sw/pkgtools.git
-git clone https://github.com/cms-sw/cmsdist.git && cd cmsdist && git checkout comp_gcc630
+git clone https://github.com/$CMSDIST_REPO/cmsdist.git && cd cmsdist && git checkout $CMSDIST_BRANCH
 git clone https://github.com/$CRABSERVER_REPO/CRABServer.git
 
 if [[ -n  ${PAYLOAD} ]]; then
