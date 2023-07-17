@@ -37,6 +37,7 @@ if [[ -z $CMSDIST_BRANCH ]]; then export CMSDIST_BRANCH=comp_gcc630; fi
 docker system prune -af
 
 #clone directories
+rm -rf pkgtools cmsdist CRABServer
 git clone -b V00-33-XX https://github.com/cms-sw/pkgtools.git
 git clone https://github.com/$CMSDIST_REPO/cmsdist.git && cd cmsdist && git checkout $CMSDIST_BRANCH
 git clone https://github.com/$CRABSERVER_REPO/CRABServer.git

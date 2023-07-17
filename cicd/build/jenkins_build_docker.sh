@@ -7,7 +7,7 @@ if [ -z ${IMAGE_TAG} ]; then
   IMAGE_TAG=${RELEASE_TAG}
 fi
 
-echo "(DEBUG) variables from upstream jenkin job (CRABServer_BuildImage_20220127):"
+echo "(DEBUG) variables from upstream jenkin job (CRABServer_BuildOnRelease):"
 echo "(DEBUG)   \- BRANCH: ${BRANCH}"
 echo "(DEBUG)   \- RELEASE_TAG: ${RELEASE_TAG}"
 echo "(DEBUG)   \- RPM_RELEASETAG_HASH: ${RPM_RELEASETAG_HASH}"
