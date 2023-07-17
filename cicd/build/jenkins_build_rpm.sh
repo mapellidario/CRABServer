@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# export RELEASE_TAG=v3.230714
+# export CRABSERVER_REPO=dmwm
+# export BRANCH=master
+# export WMCORE_REPO=dmwm
+# export WMCORE_TAG=
+# export CMSDIST_REPO=mapellidario
+# export CMSDIST_BRANCH=20230717-crab-condor
+# bash jenkins_build_rpm.sh
+
 set -x
 
 echo "(DEBUG) git version: " $(git --version)
@@ -22,7 +31,7 @@ echo "(DEBUG) end"
 if [[ -z $CRABSERVER_REPO ]]; then echo '$CRABSERVER_REPO' "is empty, exiting"; exit 1; fi
 if [[ -z $WMCORE_REPO ]]; then echo '$WMCORE_REPO' "is empty, exiting"; exit 1; fi
 if [[ -z $CMSDIST_REPO ]]; then export CMSDIST_REPO=cms-sw ; fi
-if [[ -z $CMSDIST_BRANCH ]]; then export CMSDIST_BRANCH=comp_gcc630 fi
+if [[ -z $CMSDIST_BRANCH ]]; then export CMSDIST_BRANCH=comp_gcc630; fi
 
 #do a clean up
 docker system prune -af
