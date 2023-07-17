@@ -1,5 +1,6 @@
 #!/bin/bash
 
+## example manual run
 # export RELEASE_TAG=v3.230714
 # export CRABSERVER_REPO=dmwm
 # export BRANCH=master
@@ -7,6 +8,7 @@
 # export WMCORE_TAG=
 # export CMSDIST_REPO=mapellidario
 # export CMSDIST_BRANCH=20230717-crab-condor
+# export RPM_REPO=dmapelli
 # bash jenkins_build_rpm.sh
 
 set -x
