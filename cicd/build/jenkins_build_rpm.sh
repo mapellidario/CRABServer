@@ -24,6 +24,7 @@ echo "(DEBUG)   \- WMCORE_TAG: $WMCORE_TAG"  # <empty>, 1.5.7, ...
 echo "(DEBUG)   \- BRANCH: $BRANCH" # <empty>, master, ...
 echo "(DEBUG)   \- CMSDIST_REPO: $CMSDIST_REPO"  # <empty> (defaults to cms-sw), belforte, mapellidario, ...
 echo "(DEBUG)   \- CMSDIST_BRANCH: $CMSDIST_BRANCH"  # <empty> (defaults to comp_gcc630), ...
+echo "(DEBUG)   \- RPM_REPO: $RPM_REPO"  # <empty> (defaults to crab_$BRANCH), belforte, dmapelli ...
 echo "(DEBUG)   \- PAYLOAD: $PAYLOAD"
 # example of PAYLOAD: https://dmapelli.web.cern.ch/public/crab/20220127/crabserver_github_release_payload_example.json
 echo "(DEBUG) end"
@@ -120,9 +121,20 @@ echo "(DEBUG) end"
 
 cd ..
 
+# set rpm directory and username
+if [[ -z RPM_REPO ]]; then
+    # default, run with jenkins
+    export RPM_REPO=crab_${BRANCH};
+    export RPM_USER_OPT=""
+else
+    # running manually
+    export RPM_USER_OPT="--upload-user $RPM_REPO"
+fi
+
+
 #Build and upload RPMs to comp.crab_${BRANCH} repository
 ./pkgtools/cmsBuild -c cmsdist --repository comp -a slc7_amd64_gcc630 --builders 8 -j 5 --work-dir w build comp | tee logBuild
-./pkgtools/cmsBuild -c cmsdist --repository comp -a slc7_amd64_gcc630 --upload-tmp-repository crab_${BRANCH} --builders 8 -j 5 --work-dir w upload comp | tee logUpload
+./pkgtools/cmsBuild -c cmsdist --repository comp -a slc7_amd64_gcc630 $RPM_USER_OPT --upload-tmp-repository $RPM_REPO --builders 8 -j 5 --work-dir w upload comp | tee logUpload
 
 
 #Check if RPMs have been uploaded to comp.crab_${BRANCH} repository
@@ -130,7 +142,7 @@ cd ..
 #RPM_RELEASETAG represents only version from CRABServer GH repo without the hash, i.e. py3.211215
 # if the rpm build and upload have been successfull, RPM_RELEASETAG should be
 # equal to RELEASE_TAG
-RPM_RELEASETAG_HASH=$(curl -s http://cmsrep.cern.ch/cmssw/repos/comp.crab_${BRANCH}/slc7_amd64_gcc630/latest/RPMS.json | grep -oP '(?<=crabtaskworker\+)(.*)(?=":)' | head -1)
+RPM_RELEASETAG_HASH=$(curl -s http://cmsrep.cern.ch/cmssw/repos/comp.$RPM_REPO/slc7_amd64_gcc630/latest/RPMS.json | grep -oP '(?<=crabtaskworker\+)(.*)(?=":)' | head -1)
 RPM_RELEASETAG=$(echo ${RPM_RELEASETAG_HASH} | awk -F"-" '{print $1}') # assuming that there is no '-' in the version tag
 echo "RPM_RELEASETAG_HASH=${RPM_RELEASETAG_HASH}" >> $WORKSPACE/properties_file
 
