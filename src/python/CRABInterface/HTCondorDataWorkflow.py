@@ -9,7 +9,6 @@ import tempfile
 from ast import literal_eval
 
 import pycurl
-import classad
 
 from WMCore.WMSpec.WMTask import buildLumiMask
 from WMCore.DataStructs.LumiList import LumiList
@@ -25,8 +24,6 @@ from CRABInterface.Utilities import conn_handler
 from ServerUtilities import FEEDBACKMAIL, PUBLICATIONDB_STATES, getEpochFromDBTime
 from Databases.FileMetaDataDB.Oracle.FileMetaData.FileMetaData import GetFromTaskAndType
 
-import HTCondorUtils
-import HTCondorLocator
 from functools import reduce
 
 
@@ -38,50 +35,6 @@ class MissingNodeStatus(ExecutionError):
 class HTCondorDataWorkflow(DataWorkflow):
     """ HTCondor implementation of the status command.
     """
-
-    def taskads(self, workflow):
-        row = next(self.api.query(None, None, self.Task.ID_sql, taskname = workflow))
-        row = self.Task.ID_tuple(*row)
-
-        backend_urls = copy.deepcopy(self.centralcfg.centralconfig["backend-urls"])
-        if row.schedd and row.collector:
-            # Override the collector because it may be different from what's in the external configuration
-            # (if the task was submitted by specifying a different collector in the config, for example)
-            backend_urls['htcondorPool'] = row.collector
-
-            # need to make sure to pass a simply quoted string, not a byte-array to HTCondor
-            taskName = workflow.decode("utf-8") if isinstance(workflow, bytes) else workflow
-            self.logger.debug("Running condor query for task %s." % taskName)
-            try:
-                locator = HTCondorLocator.HTCondorLocator(backend_urls)
-                schedd, _ = locator.getScheddObjNew(row.schedd)
-                results = self.getRootTasks(taskName, schedd)
-            except Exception as exp: # Empty results are caught here, because getRootTasks raises InvalidParameter exception.
-                self.logger.exception("Exception while querying schedd")
-                msg = " Message from the scheduler: %s" % (str(exp))
-                self.logger.exception("%s: %s" % (taskName, msg))
-
-            # Convert a classad list object into a dict that can be sent back to the client
-            parsedRes = {}
-            for ad in results:
-                parsedRes[ad] = str(results[ad])
-
-            yield parsedRes
-        yield None
-
-    def getRootTasks(self, workflow, schedd):
-        rootConst = 'TaskType =?= "ROOT" && CRAB_ReqName =?= %s && (isUndefined(CRAB_Attempt) || CRAB_Attempt == 0)' % HTCondorUtils.quote(workflow)
-        rootAttrList = ["JobStatus", "ExitCode", 'CRAB_JobCount', 'CRAB_ReqName', 'TaskType', "HoldReason", "HoldReasonCode", "CRAB_UserWebDir",
-                        "CRAB_SiteWhitelist", "CRAB_SiteBlacklist", "DagmanHoldReason"]
-
-        # Note: may throw if the schedd is down.  We may want to think about wrapping the
-        # status function and have it catch / translate HTCondor errors.
-        results = list(schedd.xquery(rootConst, rootAttrList))
-
-        if not results:
-            self.logger.info("An invalid workflow name was requested: %s" % workflow)
-            raise InvalidParameter("An invalid workflow name was requested: %s" % workflow)
-        return results[-1]
 
     def logs2(self, workflow, howmany, jobids):
         self.logger.info("About to get log of workflow: %s." % workflow)
@@ -403,68 +356,6 @@ class HTCondorDataWorkflow(DataWorkflow):
                                   "contact %s if the error persist. Error from curl: %s"
                                   % (url, FEEDBACKMAIL, str(e))))
 
-    def taskWebStatus(self, task_ad,  statusResult):
-        nodes = {}
-        url = task_ad['CRAB_UserWebDir']
-        curl = self.prepareCurl()
-        fp = tempfile.TemporaryFile()
-        curl.setopt(pycurl.WRITEFUNCTION, fp.write)
-        hbuf = io.BytesIO()
-        curl.setopt(pycurl.HEADERFUNCTION, hbuf.write)
-        try:
-            self.logger.debug("Retrieving task status from schedd via http")
-            nodes_url = url + "/node_state.txt"
-            curl.setopt(pycurl.URL, nodes_url)
-            # Before executing any new curl, truncate and clean temp file
-            fp, hbuf = self.cleanTempFileAndBuff(fp, hbuf)
-            self.logger.debug("Starting download of node state")
-            self.myPerform(curl, nodes_url)
-            self.logger.debug("Finished download of node state")
-            header = ResponseHeader(hbuf.getvalue())
-            if header.status == 200:
-                fp.seek(0)
-                self.logger.debug("Starting parse of node state")
-                self.parseNodeState(fp, nodes)
-                self.logger.debug("Finished parse of node state")
-            else:
-                raise MissingNodeStatus("Cannot get node state log. Retry in a minute if you just submitted the task")
-
-            site_url = url + "/error_summary.json"
-            # Before executing any new curl, truncate and clean temp file
-            fp, hbuf = self.cleanTempFileAndBuff(fp, hbuf)
-            curl.setopt(pycurl.URL, site_url)
-            self.logger.debug("Starting download of error summary file")
-            self.myPerform(curl, site_url)
-            self.logger.debug("Finished download of error summary file")
-            header = ResponseHeader(hbuf.getvalue())
-            if header.status == 200:
-                fp.seek(0)
-                self.logger.debug("Starting parse of summary file")
-                self.parseErrorReport(fp, nodes)
-                self.logger.debug("Finished parse of summary file")
-            else:
-                self.logger.debug("No error summary available")
-
-            # Before executing any new curl, truncate and clean temp file
-            fp, hbuf = self.cleanTempFileAndBuff(fp, hbuf)
-            aso_status_url = url + "/aso_status.json"
-            curl.setopt(pycurl.URL, aso_status_url)
-            self.logger.debug("Starting download of aso state")
-            curl.perform()
-            self.logger.debug("Finished download of aso state")
-            header = ResponseHeader(hbuf.getvalue())
-            if header.status == 200:
-                fp.seek(0)
-                self.logger.debug("Starting parsing of aso state")
-                self.parseASOState(fp, nodes, statusResult)
-                self.logger.debug("Finished parsing of aso state")
-            else:
-                self.logger.debug("No aso state file available")
-            return nodes
-        finally:
-            fp.close()
-            hbuf.close()
-
     @conn_handler(services=[])
     def publicationStatus(self, workflow, user):
         """Here is what basically the function return, a dict called publicationInfo in the subcalls:
@@ -553,106 +444,3 @@ class HTCondorDataWorkflow(DataWorkflow):
 
     job_re = re.compile(r"JOB Job(\d+)\s+([A-Z_]+)\s+\((.*)\)")
     post_failure_re = re.compile(r"POST [Ss]cript failed with status (\d+)")
-    def parseNodeState(self, fp, nodes):
-        first_char = fp.read(1)
-        fp.seek(0)
-        if first_char == "[":
-            return self.parseNodeStateV2(fp, nodes)
-        for line in fp.readlines():
-            m = self.job_re.match(line.decode("utf8") if isinstance(line, bytes) else line)
-            if not m:
-                continue
-            nodeid, status, msg = m.groups()
-            if status == "STATUS_READY":
-                info = nodes.setdefault(nodeid, {})
-                if info.get("State") == "transferring":
-                    info["State"] = "cooloff"
-                elif info.get('State') != "cooloff":
-                    info['State'] = 'unsubmitted'
-            elif status == "STATUS_PRERUN":
-                info = nodes.setdefault(nodeid, {})
-                info['State'] = 'cooloff'
-            elif status == 'STATUS_SUBMITTED':
-                info = nodes.setdefault(nodeid, {})
-                if msg == 'not_idle':
-                    info.setdefault('State', 'running')
-                else:
-                    info.setdefault('State', 'idle')
-            elif status == 'STATUS_POSTRUN':
-                info = nodes.setdefault(nodeid, {})
-                if info.get("State") != "cooloff":
-                    info['State'] = 'transferring'
-            elif status == 'STATUS_DONE':
-                info = nodes.setdefault(nodeid, {})
-                info['State'] = 'finished'
-            elif status == "STATUS_ERROR":
-                info = nodes.setdefault(nodeid, {})
-                m = self.post_failure_re.match(msg)
-                if m:
-                    if m.groups()[0] == '2':
-                        info['State'] = 'failed'
-                    else:
-                        info['State'] = 'cooloff'
-                else:
-                    info['State'] = 'failed'
-
-
-    @classmethod
-    def parseNodeStateV2(cls, fp, nodes):
-        """
-        HTCondor 8.1.6 updated the node state file to be classad-based.
-        This is a more flexible format that allows future extensions but, unfortunately,
-        also requires a separate parser.
-        """
-        taskStatus = nodes.setdefault("DagStatus", {})
-        for ad in classad.parseAds(fp):
-            if ad['Type'] == "DagStatus":
-                taskStatus['Timestamp'] = ad.get('Timestamp', -1)
-                taskStatus['NodesTotal'] = ad.get('NodesTotal', -1)
-                taskStatus['DagStatus'] = ad.get('DagStatus', -1)
-                continue
-            if ad['Type'] != "NodeStatus":
-                continue
-            node = ad.get("Node", "")
-            if not node.startswith("Job"):
-                continue
-            nodeid = node[3:]
-            status = ad.get('NodeStatus', -1)
-            retry = ad.get('RetryCount', -1)
-            msg = ad.get("StatusDetails", "")
-            if status == 1: # STATUS_READY
-                info = nodes.setdefault(nodeid, {})
-                if info.get("State") == "transferring":
-                    info["State"] = "cooloff"
-                elif info.get('State') != "cooloff":
-                    info['State'] = 'unsubmitted'
-            elif status == 2: # STATUS_PRERUN
-                info = nodes.setdefault(nodeid, {})
-                if retry == 0:
-                    info['State'] = 'unsubmitted'
-                else:
-                    info['State'] = 'cooloff'
-            elif status == 3: # STATUS_SUBMITTED
-                info = nodes.setdefault(nodeid, {})
-                if msg == 'not_idle':
-                    info.setdefault('State', 'running')
-                else:
-                    info.setdefault('State', 'idle')
-            elif status == 4: # STATUS_POSTRUN
-                info = nodes.setdefault(nodeid, {})
-                if info.get("State") != "cooloff":
-                    info['State'] = 'transferring'
-            elif status == 5: # STATUS_DONE
-                info = nodes.setdefault(nodeid, {})
-                info['State'] = 'finished'
-            elif status == 6: # STATUS_ERROR
-                info = nodes.setdefault(nodeid, {})
-                # Older versions of HTCondor would put jobs into STATUS_ERROR
-                # for a short time if the job was to be retried.  Hence, we had
-                # some status parsing logic to try and guess whether the job would
-                # be tried again in the near future.  This behavior is no longer
-                # observed; STATUS_ERROR is terminal.
-                info['State'] = 'failed'
-
-
-    job_name_re = re.compile(r"Job(\d+)")
