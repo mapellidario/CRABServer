@@ -25,7 +25,7 @@ echo "(DEBUG)   \- RPM_REPO: $RPM_REPO"  # <empty> (defaults to crab_$BRANCH), b
 echo "(DEBUG) end"
 
 # RPM_REPO: if set, used to flag manual execution. otherwise run by jenkins
-if [[ -z RPM_REPO ]]; then
+if [[ -z $RPM_REPO ]]; then
     # default, run with jenkins
     if [[ -z $BRANCH ]]; then echo "RPM_REPO and BRANCH are empty at the same time, exiting"; exit 1; fi
     export RPM_REPO=crab_${BRANCH};
