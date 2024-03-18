@@ -7,7 +7,9 @@ sends the information to opensearch
 
 run with:
 
-python3 /root/ProcessMemMonit.py >/dev/null  2>&1
+* * * * * python3 /root/ProcessMemMonit.py >/dev/null  2>&1
+
+defaults: every minute, six times every ten seconds, at :00 :10 :20 :30 :40 :50
 
 """
 
@@ -141,7 +143,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Process Viewer & Monitor")
     parser.add_argument("-i", "--interval", help="How many seconds the script will sleep before scanning again the processes", default=10)
-    parser.add_argument("-n", "--iterations", help="How many times the script will scan the processes", default=5)
+    parser.add_argument("-n", "--iterations", help="How many times the script will scan the processes", default=6)
     parser.add_argument("-r", "--rows", help="Number of processes to show", default=25)
 
     # parse arguments
