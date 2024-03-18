@@ -4,6 +4,11 @@ sends the information to opensearch
 
 - [x] retrieve information with psutil
 - [x] send data to opensearch
+
+run with:
+
+python3 /root/ProcessMemMonit.py >/dev/null  2>&1
+
 """
 
 import psutil
@@ -136,8 +141,8 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Process Viewer & Monitor")
     parser.add_argument("-i", "--interval", help="How many seconds the script will sleep before scanning again the processes", default=10)
-    parser.add_argument("-n", "--iterations", help="How many times the script will scan the processes", default=25)
-    parser.add_argument("-r", "--rows", help="Number of processes to show, will show all if 0 is specified, default is 25 .", default=25)
+    parser.add_argument("-n", "--iterations", help="How many times the script will scan the processes", default=5)
+    parser.add_argument("-r", "--rows", help="Number of processes to show", default=25)
 
     # parse arguments
     args = parser.parse_args()
