@@ -10,10 +10,11 @@ import psutil
 import requests
 from requests.auth import HTTPBasicAuth
 
-from datetime import datetime
+import datetime
 import time
 import os
 import json
+from socket import gethostname
 from pprint import pprint
 
 fmt = "%Y-%m-%dT%H:%M:%S%z"
@@ -25,7 +26,7 @@ def readpwd():
     """
     Reads password from disk
     """
-    with open(f"MONIT-CRAB.json", encoding='utf-8') as f:
+    with open(f"/data/certs/monit.d/MONIT-CRAB-test.json", encoding='utf-8') as f:
         credentials = json.load(f)
     return credentials["url"], credentials["username"], credentials["password"]
 MONITURL, MONITUSER, MONITPWD = readpwd()
@@ -84,10 +85,10 @@ def get_processes_info():
             name = process.name()
             # get the time the process was spawned
             try:
-                create_time = datetime.fromtimestamp(process.create_time())
+                create_time = datetime.datetime.fromtimestamp(process.create_time())
             except OSError:
                 # system processes, using boot time instead
-                create_time = datetime.fromtimestamp(psutil.boot_time())
+                create_time = datetime.datetime.fromtimestamp(psutil.boot_time())
             try:
                 # get the number of CPU cores that can execute this process
                 cores = len(process.cpu_affinity())
@@ -131,7 +132,8 @@ def get_processes_info():
                 cmdline = "N/A"
 
         processes.append({
-            'pid': pid, 'name': name, 'create_time': create_time,
+            'producer': MONITUSER, 'type': "scheddproc", 'hostname': gethostname(),
+            'pid': pid, 'name': name, 'create_time': str(create_time),
             'cores': cores, 'cpu_usage': cpu_usage, 'status': status, 'nice': nice,
             'memory_usage': memory_usage, 'read_bytes': read_bytes, 'write_bytes': write_bytes,
             'n_threads': n_threads, 'username': username, "cmdline": cmdline,
