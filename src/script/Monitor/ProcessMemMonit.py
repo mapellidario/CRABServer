@@ -3,7 +3,7 @@ This program usses python psutil to get information about processes and then
 sends the information to opensearch
 
 - [x] retrieve information with psutil
-- [ ] send data to opensearch
+- [x] send data to opensearch
 """
 
 import psutil
@@ -59,16 +59,6 @@ def send_and_check(document, should_fail=False):
     msg = 'With document: {0}. Status code: {1}. Message: {2}'.format(document, response.status_code, response.text)
     assert ((response.status_code in [200]) != should_fail), \
         msg
-
-def get_size(bytes):
-    """
-    Returns size of bytes in a nice format
-    """
-    for unit in ['', 'K', 'M', 'G', 'T', 'P']:
-        if bytes < 1024:
-            return f"{bytes:.2f}{unit}B"
-        bytes /= 1024
-
 
 def get_processes_info():
     # the list the contain all process dictionaries
@@ -142,62 +132,19 @@ def get_processes_info():
     return processes
 
 
-def construct_dataframe(processes):
-    df = processes
-    # # convert to pandas dataframe
-    # df = pd.DataFrame(processes)
-    # # set the process id as index of a process
-    # df.set_index('pid', inplace=True)
-    # # sort rows by the column passed as argument
-    # df.sort_values(sort_by, inplace=True, ascending=not descending)
-    # # pretty printing bytes
-    # df['memory_usage'] = df['memory_usage'].apply(get_size)
-    # df['write_bytes'] = df['write_bytes'].apply(get_size)
-    # df['read_bytes'] = df['read_bytes'].apply(get_size)
-    # # convert to proper date format
-    # df['create_time'] = df['create_time'].apply(datetime.strftime, args=("%Y-%m-%d %H:%M:%S",))
-    # # reorder and define used columns
-    # df = df[columns.split(",")]
-    return df
-
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Process Viewer & Monitor")
-    parser.add_argument("-c", "--columns", help="""Columns to show,
-                                                available are name,create_time,cores,cpu_usage,status,nice,memory_usage,read_bytes,write_bytes,n_threads,username.
-                                                Default is name,cpu_usage,memory_usage,read_bytes,write_bytes,status,create_time,nice,n_threads,cores.""",
-                        default="name,cpu_usage,memory_usage,read_bytes,write_bytes,status,create_time,nice,n_threads,cores")
-    parser.add_argument("-s", "--sort-by", dest="sort_by", help="Column to sort by, default is memory_usage .", default="memory_usage")
-    parser.add_argument("--descending", action="store_true", help="Whether to sort in descending order.")
-    parser.add_argument("-n", help="Number of processes to show, will show all if 0 is specified, default is 25 .", default=25)
-    parser.add_argument("-u", "--live-update", action="store_true", help="Whether to keep the program on and updating process information each second")
+    parser.add_argument("-i", "--interval", help="How many seconds the script will sleep before scanning again the processes", default=10)
+    parser.add_argument("-n", "--iterations", help="How many times the script will scan the processes", default=25)
+    parser.add_argument("-r", "--rows", help="Number of processes to show, will show all if 0 is specified, default is 25 .", default=25)
 
     # parse arguments
     args = parser.parse_args()
-    columns = args.columns
-    sort_by = args.sort_by
-    descending = args.descending
-    n = int(args.n)
-    live_update = args.live_update
-    # print the processes for the first time
-    processes = get_processes_info()
-    # pprint(processes)
-    send_and_check(processes)
-    # df = construct_dataframe(processes)
-    # if n == 0:
-    #     print(df.to_string())
-    # elif n > 0:
-    #     print(df.head(n).to_string())
-    # print continuously
-    while live_update:
-        # get all process info
+
+    for _ in range(args.iterations):
         processes = get_processes_info()
-        pprint(processes)
-        # df = construct_dataframe(processes)
-        # # clear the screen depending on your OS
-        # os.system("cls") if "nt" in os.name else os.system("clear")
-        # if n == 0:
-        #     print(df.to_string())
-        # elif n > 0:
-        #     print(df.head(n).to_string())
-        # time.sleep(0.7)
+        processes.sort(key=lambda x: x["memory_usage"], reverse=True)
+        processes = processes[:args.rows]
+        send_and_check(processes)
+        time.sleep(args.interval)
