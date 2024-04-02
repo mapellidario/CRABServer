@@ -9,7 +9,8 @@ run with:
 
 * * * * * python3 /root/ProcessMemMonit.py >/dev/null  2>&1
 
-defaults: every minute, six times every ten seconds, at :00 :10 :20 :30 :40 :50
+default arguments are such that cron runs this script every minute
+and it collects data six times every ten seconds, at :00 :10 :20 :30 :40 :50
 
 """
 
