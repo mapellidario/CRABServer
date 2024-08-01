@@ -364,12 +364,12 @@ class DagmanCreator(TaskAction):
         TaskAction.__init__(self, config, crabserver, procnum)
         self.rucioClient = rucioClient
 
-    #import os
-    if os.environ.get("TW_HTC2") == "true":
-        import classad2 as classad
-    else:
-        import classad 
-    self.classad = classad
+        #import os
+        if os.environ.get("TW_HTC2") == "true":
+            import classad2 as classad
+        else:
+            import classad 
+        self.classad = classad
 
 
     def populateGlideinMatching(self, info):
