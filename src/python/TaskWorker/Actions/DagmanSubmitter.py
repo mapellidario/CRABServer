@@ -396,7 +396,7 @@ class DagmanSubmitter(TaskAction.TaskAction):
         """Internal execution to submit to selected scheduler
            Before submission it does duplicate check to see if
            task was not submitted by previous time"""
-        if not htcondor:
+        if not self.htcondor:
             raise Exception("Unable to import HTCondor module")
 
         task = kwargs['task']
