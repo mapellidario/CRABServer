@@ -3,14 +3,16 @@ import time
 import bisect
 import random
 
-import classad
+# import classad
 # import htcondor
 
 import os
 if os.environ.get("TW_HTC2") == "true":
     import htcondor2 as htcondor 
+    import classad2 as classad
 else:
     import htcondor
+    import classad 
 
 # From http://stackoverflow.com/questions/3679694/a-weighted-version-of-random-choice
 def weightedChoice(choices):

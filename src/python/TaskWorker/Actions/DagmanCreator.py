@@ -25,7 +25,7 @@ from TaskWorker.WorkerExceptions import TaskWorkerException
 from RucioUtils import getWritePFN
 from CMSGroupMapper import get_egroup_users
 
-import classad
+# import classad
 
 import WMCore.WMSpec.WMTask
 from WMCore.Services.CRIC.CRIC import CRIC
@@ -364,6 +364,14 @@ class DagmanCreator(TaskAction):
         TaskAction.__init__(self, config, crabserver, procnum)
         self.rucioClient = rucioClient
 
+    #import os
+    if os.environ.get("TW_HTC2") == "true":
+        import classad2 as classad
+    else:
+        import classad 
+    self.classad = classad
+
+
     def populateGlideinMatching(self, info):
         scram_arch = info['tm_job_arch']
         # Set defaults
@@ -519,9 +527,9 @@ class DagmanCreator(TaskAction):
                     info['accelerator_jdl'] += f"\n+GPUMemoryMB={gpuMemoryMB}"
                 if cudaCapabilities:
                     cudaCapability = ','.join(sorted(cudaCapabilities))
-                    info['accelerator_jdl'] += f"\n+CUDACapability={classad.quote(cudaCapability)}"
+                    info['accelerator_jdl'] += f"\n+CUDACapability={self.classad.quote(cudaCapability)}"
                 if cudaRuntime:
-                    info['accelerator_jdl'] += f"\n+CUDARuntime={classad.quote(cudaRuntime)}"
+                    info['accelerator_jdl'] += f"\n+CUDARuntime={self.classad.quote(cudaRuntime)}"
         else:
             info['accelerator_jdl'] = ''
         arch = info['jobarch_flatten'].split("_")[0]  # extracts "slc7" from "slc7_amd64_gcc10"
@@ -809,9 +817,9 @@ class DagmanCreator(TaskAction):
             siteinfo = {'group_sites': {}, 'group_datasites': {}}
         if os.path.exists("site.ad"):
             with open("site.ad", encoding='utf-8') as fd:
-                sitead = classad.parseOne(fd)
+                sitead = self.classad.parseOne(fd)
         else:
-            sitead = classad.ClassAd()
+            sitead = self.classad.ClassAd()
 
         blocksWithNoLocations = set()
         blocksWithBannedLocations = set()

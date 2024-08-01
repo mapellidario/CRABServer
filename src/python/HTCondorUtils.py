@@ -1,9 +1,13 @@
 """ this file can entirely go away once we cleanup and use modern classad bindings """
 
 import os
+if os.environ.get("TW_HTC2") == "true":
+    import htcondor2 as htcondor 
+    import classad2 as classad
+else:
+    import htcondor
+    import classad 
 
-import classad
-import htcondor
 
 # This is part of the classad module as of HTCondor 8.1.2
 def quote(value):
