@@ -7,7 +7,7 @@ import tempfile
 import traceback
 import copy
 
-import htcondor
+# import htcondor
 
 from RESTInteractions import CRABRest
 from RucioUtils import getNativeRucioClient
@@ -53,11 +53,16 @@ class TaskHandler():
 
         # tm_start_time will be used to set task end time. Make sure
         # it is up to date, in case task site a while in DB e.g. for tape recall.
-        # self.task is passed in input to all actions
+           # self.task is passed in input to all actions
         self.task['tm_start_time'] = int(time.time())
 
         # setup proper credentials for HTCondor
         tokenDir = getattr(config.TaskWorker, 'SEC_TOKEN_DIRECTORY', None)
+        import os 
+        if os.environ.get("TW_HTC2") == "true":
+            import htcondor2 as htcondor
+        else:
+            import htcondor
         htcondor.param['SEC_TOKEN_DIRECTORY'] = tokenDir
 
 

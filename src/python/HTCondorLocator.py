@@ -4,8 +4,13 @@ import bisect
 import random
 
 import classad
-import htcondor
+# import htcondor
 
+import os
+if os.environ.get("TW_HTC2") == "true":
+    import htcondor2 as htcondor 
+else:
+    import htcondor
 
 # From http://stackoverflow.com/questions/3679694/a-weighted-version-of-random-choice
 def weightedChoice(choices):

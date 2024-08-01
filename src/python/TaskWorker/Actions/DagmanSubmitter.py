@@ -10,8 +10,8 @@ import sys
 
 from http.client import HTTPException
 
-import classad
-import htcondor
+# import classad
+# import htcondor
 
 import CMSGroupMapper
 import HTCondorLocator
@@ -205,6 +205,14 @@ class DagmanSubmitter(TaskAction.TaskAction):
         scheddStats.resetTaskInfo()
         self.clusterId = None
 
+        if os.environ.get("TW_HTC2") == "true":
+            import htcondor2 as htcondor
+            import classad2 as classad
+        else:
+            import htcondor
+            import classad
+        self.htcondor = htcondor
+        self.classad = classad
 
     def sendScheddToREST(self, task, schedd):
         """ Try to set the schedd to the oracle database in the REST interface
@@ -329,7 +337,7 @@ class DagmanSubmitter(TaskAction.TaskAction):
             schedd, dummyAddress = loc.getScheddObjNew(task['tm_schedd'])
             self.logger.debug("Got schedd obj for %s ", task['tm_schedd'])
 
-            rootConst = f'TaskType =?= "ROOT" && CRAB_ReqName =?= {classad.quote(workflow)}' \
+            rootConst = f'TaskType =?= "ROOT" && CRAB_ReqName =?= {self.classad.quote(workflow)}' \
                         '&& (isUndefined(CRAB_Attempt) || CRAB_Attempt == 0)'
 
             self.logger.debug("Duplicate check is querying the schedd: %s", rootConst)
@@ -454,7 +462,7 @@ class DagmanSubmitter(TaskAction.TaskAction):
                     constrain = f"crab_reqname==\"{kwargs['task']['tm_taskname']}\""
                     constrain = str(constrain)  # beware unicode, it breaks htcondor binding
                     self.logger.error("Sending: condor_rm -constrain '%s'", constrain)
-                    schedd.act(htcondor.JobAction.Remove, constrain)
+                    schedd.act(self.htcondor.JobAction.Remove, constrain)
                     # raise again to communicate failure upstream
                     raise submissionError from submissionError
             else:
@@ -477,17 +485,17 @@ class DagmanSubmitter(TaskAction.TaskAction):
         """
         Submit directly to the schedd using the HTCondor module
         """
-        jobJDL = htcondor.Submit()
+        jobJDL = self.htcondor.Submit()
         addCRABInfoToJobJDL(jobJDL, info)
 
         if info["CMSGroups"]:
-            jobJDL["+CMSGroups"] = classad.quote(','.join(info["CMSGroups"]))
+            jobJDL["+CMSGroups"] = self.classad.quote(','.join(info["CMSGroups"]))
         else:
-            jobJDL["+CMSGroups"] = classad.Value.Undefined
+            jobJDL["+CMSGroups"] = self.classad.Value.Undefined
 
         # NOTE: Changes here must be synchronized with the job_submit in DagmanCreator.py in CAFTaskWorker
         jobJDL["+CRAB_Attempt"] = "0"
-        jobJDL["+CMS_SubmissionTool"] = classad.quote("CRAB")
+        jobJDL["+CMS_SubmissionTool"] = self.classad.quote("CRAB")
         # We switched from local to scheduler universe.  Why?  It seems there's no way in the
         # local universe to change the hold signal at runtime.  That's fairly important for our
         # resubmit implementation.
@@ -503,8 +511,8 @@ class DagmanSubmitter(TaskAction.TaskAction):
         environmentString += " CONDOR_ID=$(ClusterId).$(ProcId)"
         environmentString += " " + " ".join(info['additional_environment_options'].split(';'))
         # Environment command in JDL requires proper quotes https://htcondor.readthedocs.io/en/latest/man-pages/condor_submit.html#environment
-        jobJDL["Environment"] = classad.quote(environmentString)
-        jobJDL["+RemoteCondorSetup"] = classad.quote(info['remote_condor_setup'])
+        jobJDL["Environment"] = self.classad.quote(environmentString)
+        jobJDL["+RemoteCondorSetup"] = self.classad.quote(info['remote_condor_setup'])
         jobJDL["+CRAB_TaskSubmitTime"] = str(info['start_time'])  # this is an int (seconds from epoch)
         jobJDL['+CRAB_TaskLifetimeDays'] = str(TASKLIFETIME // 24 // 60 // 60)
         jobJDL['+CRAB_TaskEndTime'] = str(int(info['start_time']) + TASKLIFETIME)
@@ -519,22 +527,22 @@ class DagmanSubmitter(TaskAction.TaskAction):
 
         # prepare a jobJDL fragment to be used when running in the scheduler
         # to create subdags for automatic splitting. A crucial change is location of the proxy
-        subdagJDL = htcondor.Submit()  # submit object does not have a copy method
+        subdagJDL = self.htcondor.Submit()  # submit object does not have a copy method
         for k,v in jobJDL.items():     # so we have to create a new object and
             subdagJDL[k] = v           # fill it one element at a time
         subdagJDL['X509UserProxy'] = os.path.basename(jobJDL['X509UserProxy'])  # proxy in scheduler will be in cwd
         with open('subdag.jdl', 'w', encoding='utf-8') as fd:
             print(subdagJDL, file=fd)
 
-        jobJDL["+TaskType"] = classad.quote("ROOT")  # we want the ad value to be "ROOT", not ROOT
+        jobJDL["+TaskType"] = self.classad.quote("ROOT")  # we want the ad value to be "ROOT", not ROOT
         jobJDL["output"] = os.path.join(info['scratch'], "request.out")
         jobJDL["error"] = os.path.join(info['scratch'], "request.err")
         jobJDL["Cmd"] = cmd
         jobJDL['Args'] = arg
         jobJDL["transfer_input_files"] = str(info['inputFilesString'])
 
-        htcondor.param['DELEGATE_FULL_JOB_GSI_CREDENTIALS'] = 'true'
-        htcondor.param['DELEGATE_JOB_GSI_CREDENTIALS_LIFETIME'] = '0'
+        self.htcondor.param['DELEGATE_FULL_JOB_GSI_CREDENTIALS'] = 'true'
+        self.htcondor.param['DELEGATE_JOB_GSI_CREDENTIALS_LIFETIME'] = '0'
         try:
             submitResult = schedd.submit(description=jobJDL, count=1, spool=True)
             clusterId = submitResult.cluster()
@@ -544,7 +552,7 @@ class DagmanSubmitter(TaskAction.TaskAction):
             # resultAds = submitResult.clusterad()
             myjobs = jobJDL.jobs(count=numProcs, clusterid=clusterId)
             schedd.spool(list(myjobs))
-        except  htcondor.HTCondorException as hte:
+        except  self.htcondor.HTCondorException as hte:
             raise TaskWorkerException(f"Submission failed with:\n{hte}") from hte
 
         self.logger.debug("Condor cluster ID returned from submit is: %s", clusterId)
